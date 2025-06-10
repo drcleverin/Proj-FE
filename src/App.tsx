@@ -7,6 +7,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import PolicyDetails from "./pages/PolicyDetails";
+import HealthInsurance from "./pages/HealthInsurance";
+import MotorInsurance from "./pages/MotorInsurance";
+import ProductInsurance from "./pages/ProductInsurance";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +26,10 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/policy" element={<Dashboard />} />
+          <Route path="/policy/:id" element={<PolicyDetails />} />
+          <Route path="/health-insurance" element={<HealthInsurance />} />
+          <Route path="/motor-insurance" element={<MotorInsurance />} />
+          <Route path="/product-insurance" element={<ProductInsurance />} />
           <Route path="/claim" element={<Dashboard />} />
           <Route path="/support" element={<Dashboard />} />
           <Route path="/blogs" element={<Dashboard />} />
