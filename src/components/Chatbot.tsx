@@ -26,7 +26,7 @@ const Chatbot = () => {
 
   const quickReplies = [
     "Policy information",
-    "Claim status",
+    "Claim status", 
     "Renew policy",
     "Contact support"
   ];
@@ -75,7 +75,7 @@ const Chatbot = () => {
 
   const handleQuickReply = (reply: string) => {
     setInputMessage(reply);
-    handleSendMessage();
+    setTimeout(() => handleSendMessage(), 100);
   };
 
   return (
@@ -84,7 +84,7 @@ const Chatbot = () => {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 rounded-full w-14 h-14 bg-insurance-primary hover:bg-insurance-dark shadow-lg z-50"
+          className="fixed bottom-6 right-6 rounded-full w-14 h-14 bg-insurance-primary hover:bg-insurance-dark shadow-xl z-50 transition-all duration-300 hover:scale-110"
         >
           <MessageCircle className="h-6 w-6" />
         </Button>
@@ -92,7 +92,7 @@ const Chatbot = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-6 right-6 w-80 h-96 shadow-xl z-50 flex flex-col">
+        <Card className="fixed bottom-6 right-6 w-80 h-96 shadow-2xl z-50 flex flex-col bg-background border-border">
           <CardHeader className="bg-insurance-primary text-white rounded-t-lg">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg flex items-center">
@@ -121,7 +121,7 @@ const Chatbot = () => {
                   <div
                     className={`max-w-[80%] rounded-lg p-3 ${
                       message.isBot
-                        ? 'bg-gray-100 text-gray-800'
+                        ? 'bg-muted text-foreground'
                         : 'bg-insurance-primary text-white'
                     }`}
                   >
@@ -137,8 +137,8 @@ const Chatbot = () => {
 
             {/* Quick Replies */}
             {messages.length === 1 && (
-              <div className="p-4 border-t">
-                <p className="text-xs text-gray-500 mb-2">Quick options:</p>
+              <div className="p-4 border-t border-border">
+                <p className="text-xs text-muted-foreground mb-2">Quick options:</p>
                 <div className="grid grid-cols-2 gap-2">
                   {quickReplies.map((reply, index) => (
                     <Button
@@ -156,7 +156,7 @@ const Chatbot = () => {
             )}
 
             {/* Input */}
-            <div className="p-4 border-t">
+            <div className="p-4 border-t border-border">
               <div className="flex space-x-2">
                 <Input
                   value={inputMessage}

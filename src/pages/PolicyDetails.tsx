@@ -6,13 +6,45 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Header from "@/components/Header";
 import Chatbot from "@/components/Chatbot";
+import Footer from "@/components/Footer";
 import { ArrowLeft, Download, Phone, Mail, FileText, Calendar, CreditCard, Shield } from "lucide-react";
+
+interface BasePolicy {
+  id: string;
+  type: string;
+  category: string;
+  insured: string;
+  effectiveDate: string;
+  expiryDate: string;
+  premium: string;
+  sumInsured: string;
+  status: string;
+  icon: string;
+  benefits: string[];
+  documents: string[];
+}
+
+interface HealthPolicy extends BasePolicy {
+  members?: string[];
+}
+
+interface MotorPolicy extends BasePolicy {
+  vehicle?: string;
+  registrationNo?: string;
+}
+
+interface ProductPolicy extends BasePolicy {
+  product?: string;
+  modelNo?: string;
+}
+
+type Policy = HealthPolicy | MotorPolicy | ProductPolicy;
 
 const PolicyDetails = () => {
   const { id } = useParams();
 
   // Mock policy data - in real app this would come from API
-  const policyData = {
+  const policyData: Record<string, Policy> = {
     "HEALTH9876543210": {
       id: "HEALTH9876543210",
       type: "Comprehensive Health Plan - Family Floater",
@@ -105,22 +137,35 @@ const PolicyDetails = () => {
 
   if (!policy) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Policy Not Found</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-4">Policy Not Found</h1>
             <Button asChild>
               <Link to="/dashboard">Back to Dashboard</Link>
             </Button>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
+  const isHealthPolicy = (policy: Policy): policy is HealthPolicy => {
+    return 'members' in policy;
+  };
+
+  const isMotorPolicy = (policy: Policy): policy is MotorPolicy => {
+    return 'vehicle' in policy;
+  };
+
+  const isProductPolicy = (policy: Policy): policy is ProductPolicy => {
+    return 'product' in policy;
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto px-4 py-8">
@@ -134,13 +179,13 @@ const PolicyDetails = () => {
           
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Policy Details</h1>
-              <p className="text-gray-600">Complete information about your {policy.category.toLowerCase()}</p>
+              <h1 className="text-3xl font-bold text-foreground mb-2">Policy Details</h1>
+              <p className="text-muted-foreground">Complete information about your {policy.category.toLowerCase()}</p>
             </div>
             <div className="flex items-center space-x-2">
               <Badge 
                 variant={policy.status === "Active" ? "default" : "secondary"}
-                className={policy.status === "Active" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}
+                className={policy.status === "Active" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"}
               >
                 {policy.status}
               </Badge>
@@ -161,47 +206,47 @@ const PolicyDetails = () => {
               <CardContent>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div>
-                    <span className="text-sm text-gray-500">Policy Number</span>
+                    <span className="text-sm text-muted-foreground">Policy Number</span>
                     <p className="font-semibold">{policy.id}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-gray-500">Category</span>
+                    <span className="text-sm text-muted-foreground">Category</span>
                     <p className="font-semibold">{policy.category}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-gray-500">Policy Holder</span>
+                    <span className="text-sm text-muted-foreground">Policy Holder</span>
                     <p className="font-semibold">{policy.insured}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-gray-500">Sum Insured</span>
+                    <span className="text-sm text-muted-foreground">Sum Insured</span>
                     <p className="font-semibold text-insurance-primary">{policy.sumInsured}</p>
                   </div>
                 </div>
 
-                {policy.members && (
+                {isHealthPolicy(policy) && policy.members && (
                   <div className="mb-6">
                     <h4 className="font-semibold mb-2">Covered Members</h4>
                     <ul className="space-y-1">
                       {policy.members.map((member, index) => (
-                        <li key={index} className="text-sm text-gray-600">• {member}</li>
+                        <li key={index} className="text-sm text-muted-foreground">• {member}</li>
                       ))}
                     </ul>
                   </div>
                 )}
 
-                {policy.vehicle && (
+                {isMotorPolicy(policy) && policy.vehicle && (
                   <div className="mb-6">
                     <h4 className="font-semibold mb-2">Vehicle Details</h4>
-                    <p className="text-sm text-gray-600">Vehicle: {policy.vehicle}</p>
-                    <p className="text-sm text-gray-600">Registration: {policy.registrationNo}</p>
+                    <p className="text-sm text-muted-foreground">Vehicle: {policy.vehicle}</p>
+                    <p className="text-sm text-muted-foreground">Registration: {policy.registrationNo}</p>
                   </div>
                 )}
 
-                {policy.product && (
+                {isProductPolicy(policy) && policy.product && (
                   <div className="mb-6">
                     <h4 className="font-semibold mb-2">Product Details</h4>
-                    <p className="text-sm text-gray-600">Product: {policy.product}</p>
-                    <p className="text-sm text-gray-600">Model: {policy.modelNo}</p>
+                    <p className="text-sm text-muted-foreground">Product: {policy.product}</p>
+                    <p className="text-sm text-muted-foreground">Model: {policy.modelNo}</p>
                   </div>
                 )}
 
@@ -235,16 +280,16 @@ const PolicyDetails = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <span className="text-sm text-gray-500">Start Date</span>
+                    <span className="text-sm text-muted-foreground">Start Date</span>
                     <p className="font-semibold">{policy.effectiveDate}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-gray-500">End Date</span>
+                    <span className="text-sm text-muted-foreground">End Date</span>
                     <p className="font-semibold text-red-600">{policy.expiryDate}</p>
                   </div>
                   <Separator />
                   <div>
-                    <span className="text-sm text-gray-500">Annual Premium</span>
+                    <span className="text-sm text-muted-foreground">Annual Premium</span>
                     <p className="text-xl font-bold text-insurance-primary">{policy.premium}</p>
                   </div>
                 </div>
@@ -309,6 +354,7 @@ const PolicyDetails = () => {
         </div>
       </div>
       
+      <Footer />
       <Chatbot />
     </div>
   );
