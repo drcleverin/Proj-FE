@@ -71,6 +71,9 @@ export default {
 					dark: '#EA580C'
 				}
 			},
+			backgroundColor: {
+				'dark-custom': '#272725'
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',

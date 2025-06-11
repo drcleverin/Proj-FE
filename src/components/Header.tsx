@@ -31,21 +31,11 @@ const Header = () => {
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-foreground hover:text-insurance-primary transition-colors bg-transparent data-[state=open]:bg-accent">
+                  <NavigationMenuTrigger className="text-foreground hover:text-insurance-primary transition-colors bg-transparent data-[state=open]:bg-accent px-2 py-1 rounded-sm hover:bg-accent/50">
                     Policy
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="grid gap-3 p-6 w-[500px] lg:grid-cols-[.75fr_1fr] bg-background border border-border rounded-md shadow-lg">
-                      <div className="row-span-3">
-                        <div className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-insurance-light to-insurance-primary p-6 no-underline outline-none focus:shadow-md">
-                          <div className="mb-2 mt-4 text-lg font-medium text-white">
-                            Insurance Plans
-                          </div>
-                          <p className="text-sm leading-tight text-white/90">
-                            Comprehensive coverage for all your needs
-                          </p>
-                        </div>
-                      </div>
+                    <div className="grid gap-2 p-4 w-[400px] bg-background border border-border rounded-md shadow-lg">
                       <Link
                         to="/health-insurance"
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
@@ -79,8 +69,8 @@ const Header = () => {
               </NavigationMenuList>
             </NavigationMenu>
             
-            <Link to="/claim" className="text-foreground hover:text-insurance-primary transition-colors">
-              Claim
+            <Link to="/dashboard" className="text-foreground hover:text-insurance-primary transition-colors">
+              My Policies
             </Link>
             <Link to="/support" className="text-foreground hover:text-insurance-primary transition-colors">
               Support

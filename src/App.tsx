@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Policy from "./pages/Policy";
 import PolicyDetails from "./pages/PolicyDetails";
 import HealthInsurance from "./pages/HealthInsurance";
 import MotorInsurance from "./pages/MotorInsurance";
@@ -27,7 +28,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/policy" element={<Dashboard />} />
+            <Route path="/policy" element={<Policy />} />
             <Route path="/policy/:id" element={<PolicyDetails />} />
             <Route path="/health-insurance" element={<HealthInsurance />} />
             <Route path="/motor-insurance" element={<MotorInsurance />} />

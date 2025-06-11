@@ -1,15 +1,17 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
-  const [registrationNumber, setRegistrationNumber] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [email, setEmail] = useState("");
   const [searchPolicy, setSearchPolicy] = useState("");
+  const navigate = useNavigate();
+
+  const handleGetQuote = () => {
+    navigate("/policy");
+  };
 
   return (
     <section className="relative min-h-[600px] hero-section overflow-hidden">
@@ -39,38 +41,15 @@ const HeroSection = () => {
 
             <Card className="bg-white/95 backdrop-blur-sm">
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div>
-                    <label className="text-sm text-gray-600 mb-1 block">Registration Number</label>
-                    <Input
-                      placeholder="PJ 01 DC 4877"
-                      value={registrationNumber}
-                      onChange={(e) => setRegistrationNumber(e.target.value)}
-                      className="border-gray-300"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-600 mb-1 block">Mobile Number</label>
-                    <Input
-                      placeholder="97397 12345"
-                      value={mobileNumber}
-                      onChange={(e) => setMobileNumber(e.target.value)}
-                      className="border-gray-300"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-600 mb-1 block">Email</label>
-                    <Input
-                      placeholder="abc@xyz.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="border-gray-300"
-                    />
-                  </div>
+                <div className="space-y-4">
+                  <p className="text-gray-700 text-center">Ready to get protected?</p>
+                  <Button 
+                    onClick={handleGetQuote}
+                    className="w-full bg-insurance-primary hover:bg-insurance-dark"
+                  >
+                    Get Quote
+                  </Button>
                 </div>
-                <Button className="w-full bg-insurance-primary hover:bg-insurance-dark">
-                  Get Quote
-                </Button>
               </CardContent>
             </Card>
           </div>
