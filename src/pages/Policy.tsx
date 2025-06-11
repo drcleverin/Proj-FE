@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,8 @@ const Policy = () => {
   const [searchParams] = useSearchParams();
   const initialType = searchParams.get('type') || '';
   const [selectedPolicy, setSelectedPolicy] = useState<string>(initialType);
+  const [showHealthApplication, setShowHealthApplication] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,20 +55,36 @@ const Policy = () => {
 
   const handlePolicySelect = (policyId: string) => {
     setSelectedPolicy(policyId);
+    setShowHealthApplication(false);
+    setCurrentStep(1);
     // Update URL without causing full page reload
     const newUrl = new URL(window.location.href);
     newUrl.searchParams.set('type', policyId);
     window.history.pushState({}, '', newUrl);
   };
 
-  // Motor Insurance Content
+  const handleChoosePlan = (planId: string) => {
+    setShowHealthApplication(true);
+    setCurrentStep(2);
+  };
+
+  const handleNextStep = () => {
+    if (currentStep < steps.length) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  // Motor Insurance Content - Updated to remove specified fields
   const MotorInsuranceContent = () => {
     const [formData, setFormData] = useState({
-      vehicleType: "",
       registrationNumber: "",
-      make: "",
-      model: "",
-      year: ""
+      model: ""
     });
 
     const features = [
@@ -102,20 +119,6 @@ const Policy = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>Vehicle Type</Label>
-                <Select onValueChange={(value) => setFormData({...formData, vehicleType: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select vehicle type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="car">Car</SelectItem>
-                    <SelectItem value="bike">Bike</SelectItem>
-                    <SelectItem value="commercial">Commercial Vehicle</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
                 <Label>Registration Number</Label>
                 <Input 
                   placeholder="e.g., KA01AB1234"
@@ -124,36 +127,13 @@ const Policy = () => {
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Make</Label>
-                  <Select onValueChange={(value) => setFormData({...formData, make: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Make" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="maruti">Maruti Suzuki</SelectItem>
-                      <SelectItem value="hyundai">Hyundai</SelectItem>
-                      <SelectItem value="honda">Honda</SelectItem>
-                      <SelectItem value="toyota">Toyota</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label>Year</Label>
-                  <Select onValueChange={(value) => setFormData({...formData, year: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="2024">2024</SelectItem>
-                      <SelectItem value="2023">2023</SelectItem>
-                      <SelectItem value="2022">2022</SelectItem>
-                      <SelectItem value="2021">2021</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div>
+                <Label>Model</Label>
+                <Input 
+                  placeholder="e.g., Swift, City, Activa"
+                  value={formData.model}
+                  onChange={(e) => setFormData({...formData, model: e.target.value})}
+                />
               </div>
               
               <Button className="w-full bg-insurance-primary hover:bg-insurance-dark">
@@ -229,7 +209,7 @@ const Policy = () => {
     );
   };
 
-  // Health Insurance Content
+  // Health Insurance Content - Updated with application flow
   const HealthInsuranceContent = () => {
     const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
@@ -279,6 +259,187 @@ const Policy = () => {
       }
     ];
 
+    if (showHealthApplication && currentStep >= 2) {
+      return (
+        <div className="space-y-8">
+          {currentStep === 2 && (
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle>Personal Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input id="firstName" placeholder="Enter your first name" />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input id="lastName" placeholder="Enter your last name" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="email" placeholder="Enter your email" />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input id="phone" placeholder="Enter your phone number" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="dob">Date of Birth</Label>
+                    <Input id="dob" type="date" />
+                  </div>
+                  <div>
+                    <Label htmlFor="gender">Gender</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="address">Address</Label>
+                  <Input id="address" placeholder="Enter your complete address" />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="city">City</Label>
+                    <Input id="city" placeholder="Enter your city" />
+                  </div>
+                  <div>
+                    <Label htmlFor="pincode">Pin Code</Label>
+                    <Input id="pincode" placeholder="Enter pin code" />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="familyMembers">Number of Family Members</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select number of members" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 (Self)</SelectItem>
+                      <SelectItem value="2">2 (Self + Spouse)</SelectItem>
+                      <SelectItem value="3">3 (Self + Spouse + 1 Child)</SelectItem>
+                      <SelectItem value="4">4 (Self + Spouse + 2 Children)</SelectItem>
+                      <SelectItem value="5+">5 or more</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="sumInsured">Preferred Sum Insured</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select coverage amount" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="300000">₹3,00,000</SelectItem>
+                      <SelectItem value="500000">₹5,00,000</SelectItem>
+                      <SelectItem value="1000000">₹10,00,000</SelectItem>
+                      <SelectItem value="1500000">₹15,00,000</SelectItem>
+                      <SelectItem value="2000000">₹20,00,000</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex space-x-4 pt-4">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={handlePreviousStep}
+                  >
+                    Back to Plans
+                  </Button>
+                  <Button 
+                    className="flex-1 bg-insurance-primary hover:bg-insurance-dark"
+                    onClick={handleNextStep}
+                  >
+                    Continue to Preview
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {currentStep === 3 && (
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle>Review Your Application</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-semibold mb-2">Selected Plan</h3>
+                  <p className="text-insurance-primary font-bold">Family Floater Plan - ₹8,500/year</p>
+                  <p className="text-sm text-muted-foreground">Coverage: ₹10,00,000</p>
+                </div>
+                
+                <div className="space-y-4">
+                  <h3 className="font-semibold">Personal Details</h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Name:</span>
+                      <p>Rajesh Sharma</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Email:</span>
+                      <p>rajesh@example.com</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex space-x-4 pt-4">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={handlePreviousStep}
+                  >
+                    Back to Edit
+                  </Button>
+                  <Button 
+                    className="flex-1 bg-insurance-primary hover:bg-insurance-dark"
+                    onClick={handleNextStep}
+                  >
+                    Confirm & Pay
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {currentStep === 4 && (
+            <Card className="shadow-lg">
+              <CardContent className="text-center py-12">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Check className="h-8 w-8 text-green-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-foreground mb-2">Application Submitted!</h2>
+                <p className="text-muted-foreground mb-6">Your policy application has been received and is being processed.</p>
+                <Button className="bg-insurance-primary hover:bg-insurance-dark">
+                  Go to Dashboard
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -322,6 +483,7 @@ const Policy = () => {
                       ? 'bg-insurance-primary hover:bg-insurance-dark shadow-lg hover:shadow-xl' 
                       : 'bg-gray-700 hover:bg-gray-800'
                   }`}
+                  onClick={() => handleChoosePlan(plan.id)}
                 >
                   Choose Plan
                 </Button>
@@ -559,7 +721,7 @@ const Policy = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <ProcessFlow currentStep={1} steps={steps} />
+      <ProcessFlow currentStep={showHealthApplication ? currentStep : 1} steps={steps} />
       
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
