@@ -10,11 +10,7 @@ const HeroSection = () => {
   const navigate = useNavigate();
 
   const handleGetQuote = () => {
-    if (searchPolicy) {
-      navigate(`/policy?type=${searchPolicy}`);
-    } else {
-      navigate("/policy");
-    }
+    navigate("/policy");
   };
 
   return (

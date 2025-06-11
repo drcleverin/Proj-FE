@@ -31,35 +31,35 @@ const Header = () => {
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-foreground hover:text-insurance-primary transition-colors bg-transparent data-[state=open]:bg-accent/50 px-3 py-2 rounded-md hover:bg-accent/30 text-sm">
+                  <NavigationMenuTrigger className="text-foreground hover:text-insurance-primary transition-colors bg-transparent data-[state=open]:bg-accent px-2 py-1 rounded-sm hover:bg-accent/50">
                     Policy
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="grid gap-1 p-3 w-[350px] bg-background border border-border rounded-md shadow-lg">
+                    <div className="grid gap-2 p-4 w-[400px] bg-background border border-border rounded-md shadow-lg">
                       <Link
-                        to="/policy?type=health"
+                        to="/health-insurance"
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         <div className="text-sm font-medium leading-none">Health Insurance</div>
-                        <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">
+                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                           Comprehensive health coverage for individuals and families
                         </p>
                       </Link>
                       <Link
-                        to="/policy?type=motor"
+                        to="/motor-insurance"
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         <div className="text-sm font-medium leading-none">Motor Insurance</div>
-                        <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">
+                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                           Complete protection for your car and bike
                         </p>
                       </Link>
                       <Link
-                        to="/policy?type=product"
+                        to="/product-insurance"
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         <div className="text-sm font-medium leading-none">Product Insurance</div>
-                        <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">
+                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                           Extended warranty for electronics and appliances
                         </p>
                       </Link>
