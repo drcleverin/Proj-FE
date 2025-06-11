@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,13 @@ const Policy = () => {
   const initialType = searchParams.get('type') || '';
   const [selectedPolicy, setSelectedPolicy] = useState<string>(initialType);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const typeParam = searchParams.get('type');
+    if (typeParam && typeParam !== selectedPolicy) {
+      setSelectedPolicy(typeParam);
+    }
+  }, [searchParams]);
 
   const policyTypes = [
     {
@@ -47,6 +54,10 @@ const Policy = () => {
 
   const handlePolicySelect = (policyId: string) => {
     setSelectedPolicy(policyId);
+    // Update URL without causing full page reload
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('type', policyId);
+    window.history.pushState({}, '', newUrl);
   };
 
   // Motor Insurance Content

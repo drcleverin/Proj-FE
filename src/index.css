@@ -83,6 +83,22 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  .dark {
+    --background: 15.84% 36 20%;
+  }
+
+  html.dark {
+    background-color: #272725;
+  }
+
+  html.dark body {
+    background-color: #272725;
+  }
+
+  .dark #root {
+    background-color: #272725;
+  }
 }
 
 @layer base {
@@ -92,6 +108,19 @@
 
   body {
     @apply bg-background text-foreground;
+    min-height: 100vh;
+  }
+
+  html.dark {
+    background-color: #272725;
+  }
+
+  html.dark body {
+    background-color: #272725;
+  }
+
+  html.dark #root {
+    background-color: #272725;
   }
 }
 

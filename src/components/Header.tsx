@@ -37,7 +37,7 @@ const Header = () => {
                   <NavigationMenuContent>
                     <div className="grid gap-2 p-4 w-[400px] bg-background border border-border rounded-md shadow-lg">
                       <Link
-                        to="/health-insurance"
+                        to="/policy?type=health"
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         <div className="text-sm font-medium leading-none">Health Insurance</div>
@@ -46,7 +46,7 @@ const Header = () => {
                         </p>
                       </Link>
                       <Link
-                        to="/motor-insurance"
+                        to="/policy?type=motor"
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         <div className="text-sm font-medium leading-none">Motor Insurance</div>
@@ -55,7 +55,7 @@ const Header = () => {
                         </p>
                       </Link>
                       <Link
-                        to="/product-insurance"
+                        to="/policy?type=product"
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         <div className="text-sm font-medium leading-none">Product Insurance</div>
