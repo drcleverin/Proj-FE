@@ -13,6 +13,8 @@ import PolicyDetails from "./pages/PolicyDetails";
 import HealthInsurance from "./pages/HealthInsurance";
 import MotorInsurance from "./pages/MotorInsurance";
 import ProductInsurance from "./pages/ProductInsurance";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +38,8 @@ const App = () => (
             <Route path="/claim" element={<Dashboard />} />
             <Route path="/support" element={<Dashboard />} />
             <Route path="/blogs" element={<Dashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
