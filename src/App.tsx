@@ -8,6 +8,9 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Policy from "./pages/Policy";
 import PolicyDetails from "./pages/PolicyDetails";
@@ -33,6 +36,9 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/policy" element={<Policy />} />
               <Route path="/policy/:id" element={<PolicyDetails />} />
