@@ -1,3 +1,4 @@
+
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -43,22 +55,28 @@ const mockUsers = [
     ]
   },
   {
-    id: 2,
+    id: "USR002",
     name: "Jane Smith",
     email: "jane@example.com",
+    phone: "9876543210",
     role: "Premium",
     status: "Active",
     joinDate: "2024-02-20",
-    policies: 1,
+    policies: [
+      { number: "P123456791", type: "Health Insurance", status: "Active", expiry: "2024-08-20" }
+    ],
+    claims: []
   },
   {
-    id: 3,
+    id: "USR003",
     name: "Bob Johnson",
     email: "bob@example.com",
+    phone: "5551234567",
     role: "User",
     status: "Inactive",
     joinDate: "2024-03-10",
-    policies: 0,
+    policies: [],
+    claims: []
   },
 ];
 
@@ -89,9 +107,7 @@ export default function AdminUsers() {
   };
 
   const handleDelete = (userId) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      setUsers(users.filter(user => user.id !== userId));
-    }
+    setUsers(users.filter(user => user.id !== userId));
   };
 
   const handleSave = () => {
@@ -127,8 +143,32 @@ export default function AdminUsers() {
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.id.toLowerCase().includes(searchTerm.toLowerCase())
+    user.id.toString().toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const exportToCSV = () => {
+    const headers = ['User ID', 'Name', 'Email', 'Phone', 'Role', 'Status', 'Join Date'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredUsers.map(user => [
+        user.id,
+        user.name,
+        user.email,
+        user.phone,
+        user.role,
+        user.status,
+        user.joinDate
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'users.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   return (
     <AdminLayout>
@@ -143,7 +183,7 @@ export default function AdminUsers() {
               <Plus className="mr-2 h-4 w-4" />
               Add New User
             </Button>
-            <Button variant="outline" className="bg-orange-100 border-orange-300">
+            <Button onClick={exportToCSV} variant="outline" className="bg-orange-100 border-orange-300">
               Export as CSV
             </Button>
             <Button variant="outline" size="icon">
@@ -224,14 +264,32 @@ export default function AdminUsers() {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(user.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete the user
+                                and remove their data from our servers.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(user.id)}>
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -427,7 +485,7 @@ export default function AdminUsers() {
 
                 {/* Associated Policies Tab */}
                 <div className="border rounded-lg p-4">
-                  <h3 className="text-lg font-semibold mb-4 border-b pb-2">Associate Policies</h3>
+                  <h3 className="text-lg font-semibold mb-4 border-b pb-2">Associated Policies</h3>
                   <Table>
                     <TableHeader>
                       <TableRow>

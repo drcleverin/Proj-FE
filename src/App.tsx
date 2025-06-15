@@ -16,6 +16,7 @@ import ProductInsurance from "./pages/ProductInsurance";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPolicies from "./pages/admin/AdminPolicies";
+import AdminClaims from "./pages/admin/AdminClaims";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,7 +43,7 @@ const App = () => (
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/policies" element={<AdminPolicies />} />
-            <Route path="/admin/claims" element={<AdminDashboard />} />
+            <Route path="/admin/claims" element={<AdminClaims />} />
             <Route path="/admin/products" element={<AdminDashboard />} />
             <Route path="/admin/analytics" element={<AdminDashboard />} />
             <Route path="/admin/settings" element={<AdminDashboard />} />
