@@ -1,4 +1,6 @@
 
+
+// src/components/MotorInsurance.tsx
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +17,10 @@ const MotorInsurance = () => {
     model: "",
     year: ""
   });
+
+  // No fetch calls or backend integration for this component's form in this update,
+  // as the backend doesn't have a specific API for "Get Instant Quote" for motor insurance.
+  // The form remains client-side only.
 
   const features = [
     {
@@ -42,7 +48,7 @@ const MotorInsurance = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Motor Insurance</h1>
@@ -69,16 +75,16 @@ const MotorInsurance = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">Registration Number</label>
-                <Input 
+                <Input
                   placeholder="e.g., KA01AB1234"
                   value={formData.registrationNumber}
                   onChange={(e) => setFormData({...formData, registrationNumber: e.target.value})}
                 />
               </div>
-              
+            <h1>heyyy</h1>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Make</label>
@@ -94,7 +100,7 @@ const MotorInsurance = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2">Year</label>
                   <Select onValueChange={(value) => setFormData({...formData, year: value})}>
@@ -110,7 +116,7 @@ const MotorInsurance = () => {
                   </Select>
                 </div>
               </div>
-              
+
               <Button className="w-full bg-insurance-primary hover:bg-insurance-dark">
                 Get Quote
               </Button>
@@ -149,7 +155,7 @@ const MotorInsurance = () => {
                 </ul>
               </CardContent>
             </Card>
-            
+
             <Card className="ring-2 ring-insurance-primary">
               <CardHeader>
                 <CardTitle>Comprehensive</CardTitle>
@@ -164,7 +170,7 @@ const MotorInsurance = () => {
                 </ul>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle>Zero Depreciation</CardTitle>

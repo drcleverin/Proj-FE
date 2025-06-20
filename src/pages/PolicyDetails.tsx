@@ -1,5 +1,6 @@
-
+// src/components/PolicyDetails.tsx
 import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react"; // Import useState and useEffect
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,141 +10,174 @@ import Chatbot from "@/components/Chatbot";
 import Footer from "@/components/Footer";
 import { ArrowLeft, Download, Phone, Mail, FileText, Calendar, CreditCard, Shield } from "lucide-react";
 
-interface BasePolicy {
-  id: string;
-  type: string;
-  category: string;
-  insured: string;
-  effectiveDate: string;
-  expiryDate: string;
-  premium: string;
-  sumInsured: string;
-  status: string;
-  icon: string;
-  benefits: string[];
-  documents: string[];
+// Updated interfaces to match backend structure more closely where possible
+interface PolicyData {
+  policyId: number; // Backend uses Integer
+  policyNumber: string;
+  customerId: number;
+  policyTypeId: number;
+  descriptionId: number | null;
+  startDate: string; // YYYY-MM-DD
+  endDate: string;   // YYYY-MM-DD
+  premiumAmount: number; // Backend uses BigDecimal, but number is fine for fetch
+  sumInsured: number;    // Backend uses BigDecimal, but number is fine for fetch
+  policyStatus: string;
 }
 
-interface HealthPolicy extends BasePolicy {
-  members?: string[];
+// Frontend-specific fields to enrich display (these will be mapped)
+interface PolicyDisplay extends PolicyData {
+  id: string; // Using string for frontend routing
+  type: string; // Mapped from policyTypeId
+  category: string; // Mapped from policyTypeId
+  insured: string; // Mapped from customerId
+  icon: string; // Mapped from policyTypeId
+  benefits: string[]; // Mock or derived
+  documents: string[]; // Mock or derived
+
+  // Optional fields for specific policy types (not from backend directly)
+  members?: string[]; // For Health
+  vehicle?: string; // For Motor
+  registrationNo?: string; // For Motor
+  product?: string; // For Product
+  modelNo?: string; // For Product
 }
 
-interface MotorPolicy extends BasePolicy {
-  vehicle?: string;
-  registrationNo?: string;
-}
-
-interface ProductPolicy extends BasePolicy {
-  product?: string;
-  modelNo?: string;
-}
-
-type Policy = HealthPolicy | MotorPolicy | ProductPolicy;
 
 const PolicyDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>(); // ID from URL path, will be policyId
+  const [policy, setPolicy] = useState<PolicyDisplay | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock policy data - in real app this would come from API
-  const policyData: Record<string, Policy> = {
-    "HEALTH9876543210": {
-      id: "HEALTH9876543210",
-      type: "Comprehensive Health Plan - Family Floater",
-      category: "Health Insurance",
-      insured: "The Sharma Family",
-      members: ["Rajesh Sharma (Primary)", "Priya Sharma (Spouse)", "Rohan Sharma (Son, Age 15)", "Siya Sharma (Daughter, Age 12)"],
-      effectiveDate: "01 Jan 2025",
-      expiryDate: "31 Dec 2025",
-      premium: "₹18,500",
-      sumInsured: "₹10,00,000",
-      status: "Active",
-      icon: "💊",
-      benefits: [
-        "Hospitalization Coverage: ₹10,00,000",
-        "Pre & Post Hospitalization: 30/60 days",
-        "Day Care Procedures: Covered",
-        "Ambulance Charges: ₹2,000 per incident",
-        "Annual Health Check-up: Free for all members",
-        "Maternity Coverage: ₹1,00,000",
-        "Critical Illness: ₹5,00,000"
-      ],
-      documents: [
-        "Policy Certificate",
-        "Health Cards",
-        "Claim Forms",
-        "Network Hospital List"
-      ]
-    },
-    "MOTOR1234567890": {
-      id: "MOTOR1234567890",
-      type: "Private Car Package Policy",
-      category: "Motor Insurance",
-      insured: "Rajesh Sharma",
-      vehicle: "Maruti Swift VDI (2020)",
-      registrationNo: "KA01AB1234",
-      effectiveDate: "01 Jan 2025",
-      expiryDate: "31 Dec 2025",
-      premium: "₹12,500",
-      sumInsured: "₹6,50,000",
-      status: "Expiring soon",
-      icon: "🚗",
-      benefits: [
-        "Own Damage Coverage: ₹6,50,000",
-        "Third Party Liability: Unlimited",
-        "Personal Accident: ₹15,00,000",
-        "Zero Depreciation",
-        "Roadside Assistance: 24x7",
-        "Return to Invoice",
-        "Engine Protection"
-      ],
-      documents: [
-        "Policy Certificate",
-        "Insurance Certificate",
-        "Claim Forms",
-        "Garage Network List"
-      ]
-    },
-    "PROD5554443332": {
-      id: "PROD5554443332",
-      type: "Extended Warranty - Smart TV",
-      category: "Product Insurance",
-      insured: "Rajesh Sharma",
-      product: "Samsung 55\" Smart QLED TV",
-      modelNo: "QA55Q70CAKLXL",
-      effectiveDate: "01 Jan 2025",
-      expiryDate: "31 Dec 2025",
-      premium: "₹12,500",
-      sumInsured: "₹85,000",
-      status: "Expiring soon",
-      icon: "📺",
-      benefits: [
-        "Manufacturing Defects: Covered",
-        "Electrical/Mechanical Breakdown: Covered",
-        "Screen Protection: Included",
-        "Pick-up & Drop Service: Free",
-        "Genuine Parts Replacement",
-        "On-site Repair: Available",
-        "Customer Support: 24x7"
-      ],
-      documents: [
-        "Warranty Certificate",
-        "Service Terms",
-        "Claim Forms",
-        "Service Center List"
-      ]
+  useEffect(() => {
+    const fetchPolicyDetails = async () => {
+      if (!id) {
+        setError("Policy ID is missing.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        // Using the /admin/policies/{id} endpoint
+        console.log(`Fetching policy details for ID: ${id}`);
+        const response = await fetch(`http://localhost:8093/api/dashboard/viewpolicy/${id}`);
+                                                        
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error("Policy not found.");
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: PolicyData = await response.json(); // Backend returns PolicyData
+
+        // Map backend data to frontend display format
+        // This mapping logic needs to be robust and potentially use more backend data
+        // if the backend can provide more specific details (e.g., actual vehicle name, product name).
+        const mappedPolicy: PolicyDisplay = {
+          ...data,
+          id: data.policyId.toString(), // Use policyId as frontend ID
+          type: `Policy Type ${data.policyTypeId}`, // Placeholder
+          category: getCategoryName(data.policyTypeId), // Map type to category name
+          insured: `Customer ID: ${data.customerId}`, // Placeholder
+          icon: getPolicyIcon(data.policyTypeId), // Get icon based on type
+          benefits: getMockBenefits(data.policyTypeId), // Mock benefits
+          documents: getMockDocuments(data.policyTypeId), // Mock documents
+          premium: `₹${data.premiumAmount.toLocaleString('en-IN')}`, // Format premium
+          sumInsured: `₹${data.sumInsured.toLocaleString('en-IN')}`, // Format sum insured
+          effectiveDate: formatDate(data.startDate),
+          expiryDate: formatDate(data.endDate),
+          // Add specific fields if they were retrieved for certain types
+          ...(data.policyTypeId === 2 && { members: getMockHealthMembers() }), // Example for health
+          ...(data.policyTypeId === 1 && { vehicle: "Vehicle Example", registrationNo: data.policyNumber }), // Example for motor
+          ...(data.policyTypeId === 3 && { product: "Product Example", modelNo: "Model Example" }), // Example for product
+        };
+        setPolicy(mappedPolicy);
+      } catch (e: any) {
+        console.error("Error fetching policy details:", e);
+        setError(`Failed to load policy details: ${e.message}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPolicyDetails();
+  }, [id]);
+
+  // Helper functions (same as in Dashboard.tsx or centralized)
+  const getPolicyIcon = (policyTypeId: number): string => {
+    switch (policyTypeId) {
+      case 1: return "🚗"; // Motor
+      case 2: return "💊"; // Health
+      case 3: return "📺"; // Product
+      default: return "📄";
     }
   };
 
-  const policy = policyData[id as keyof typeof policyData];
+  const getCategoryName = (policyTypeId: number): string => {
+    switch (policyTypeId) {
+      case 1: return "Motor Insurance";
+      case 2: return "Health Insurance";
+      case 3: return "Product Insurance";
+      default: return "Unknown Policy";
+    }
+  };
 
-  if (!policy) {
+  const formatDate = (dateString: string): string => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
+
+  // Mock benefits and documents - ideally these would come from more detailed backend APIs
+  const getMockBenefits = (policyTypeId: number): string[] => {
+    switch (policyTypeId) {
+      case 1: return ["Own Damage Coverage", "Third Party Liability", "Personal Accident: ₹15,00,000", "24x7 Roadside Assistance"];
+      case 2: return ["Hospitalization Coverage", "Pre & Post Hospitalization", "Day Care Procedures", "Annual Health Check-up"];
+      case 3: return ["Manufacturing Defects", "Electrical/Mechanical Breakdown", "Screen Protection", "Pick-up & Drop Service"];
+      default: return ["Basic Coverage"];
+    }
+  };
+
+  const getMockDocuments = (policyTypeId: number): string[] => {
+    switch (policyTypeId) {
+      case 1: return ["Policy Certificate (Motor)", "Insurance Certificate (Motor)"];
+      case 2: return ["Policy Certificate (Health)", "Health Cards"];
+      case 3: return ["Warranty Certificate (Product)", "Service Terms"];
+      default: return ["Policy Document"];
+    }
+  };
+
+  const getMockHealthMembers = (): string[] => {
+    return ["Rajesh Sharma (Primary)", "Priya Sharma (Spouse)", "Rohan Sharma (Son)"];
+  };
+
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-foreground mb-4">Policy Not Found</h1>
+            <p className="text-gray-500">Loading policy details...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !policy) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center bg-red-50 border border-red-200 text-red-700 p-6 rounded-lg">
+            <h1 className="text-2xl font-bold mb-4">Error</h1>
+            <p className="mb-4">{error || "Policy details could not be loaded."}</p>
             <Button asChild>
-              <Link to="/dashboard">Back to Dashboard</Link>
+              <Link to="/dashboard">Back to My Policies</Link>
             </Button>
           </div>
         </div>
@@ -152,22 +186,23 @@ const PolicyDetails = () => {
     );
   }
 
-  const isHealthPolicy = (policy: Policy): policy is HealthPolicy => {
-    return 'members' in policy;
+  const isHealthPolicy = (p: PolicyDisplay): p is PolicyDisplay & { members: string[] } => {
+    return p.category === "Health Insurance" && 'members' in p;
   };
 
-  const isMotorPolicy = (policy: Policy): policy is MotorPolicy => {
-    return 'vehicle' in policy;
+  const isMotorPolicy = (p: PolicyDisplay): p is PolicyDisplay & { vehicle: string, registrationNo: string } => {
+    return p.category === "Motor Insurance" && 'vehicle' in p;
   };
 
-  const isProductPolicy = (policy: Policy): policy is ProductPolicy => {
-    return 'product' in policy;
+  const isProductPolicy = (p: PolicyDisplay): p is PolicyDisplay & { product: string, modelNo: string } => {
+    return p.category === "Product Insurance" && 'product' in p;
   };
+
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <Button asChild variant="outline" className="mb-4">
@@ -176,18 +211,18 @@ const PolicyDetails = () => {
               Back to My Policies
             </Link>
           </Button>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-foreground mb-2">Policy Details</h1>
               <p className="text-muted-foreground">Complete information about your {policy.category.toLowerCase()}</p>
             </div>
             <div className="flex items-center space-x-2">
-              <Badge 
-                variant={policy.status === "Active" ? "default" : "secondary"}
-                className={policy.status === "Active" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"}
+              <Badge
+                variant={policy.policyStatus === "Active" ? "default" : "secondary"}
+                className={policy.policyStatus === "Active" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"}
               >
-                {policy.status}
+                {policy.policyStatus}
               </Badge>
             </div>
           </div>
@@ -207,7 +242,7 @@ const PolicyDetails = () => {
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div>
                     <span className="text-sm text-muted-foreground">Policy Number</span>
-                    <p className="font-semibold">{policy.id}</p>
+                    <p className="font-semibold">{policy.policyNumber}</p>
                   </div>
                   <div>
                     <span className="text-sm text-muted-foreground">Category</span>
@@ -353,7 +388,7 @@ const PolicyDetails = () => {
           </div>
         </div>
       </div>
-      
+
       <Footer />
       <Chatbot />
     </div>
@@ -361,3 +396,4 @@ const PolicyDetails = () => {
 };
 
 export default PolicyDetails;
+

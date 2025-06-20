@@ -22,6 +22,8 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPolicies from "./pages/admin/AdminPolicies";
 import AdminClaims from "./pages/admin/AdminClaims";
 import NotFound from "./pages/NotFound";
+import RaiseClaimPage from "./pages/RaiseClaimPage";
+import SignupPage from "./pages/SignupPage";
 
 const queryClient = new QueryClient();
 
@@ -41,7 +43,12 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/policy" element={<Policy />} />
+              {/* <Route path="/chatting" element={<Chatting/>}/> */}
+              <Route path="/signup" element={<SignupPage />} />
+
+
               <Route path="/policy/:id" element={<PolicyDetails />} />
+              <Route path="/policyClaim/:id" element={<RaiseClaimPage />} />
               <Route path="/health-insurance" element={<HealthInsurance />} />
               <Route path="/motor-insurance" element={<MotorInsurance />} />
               <Route path="/product-insurance" element={<ProductInsurance />} />
@@ -67,3 +74,4 @@ const App = () => (
 );
 
 export default App;
+

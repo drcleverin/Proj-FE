@@ -1,13 +1,8 @@
-
-import { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Header from "@/components/Header";
-import axios from 'axios';
+import axios from 'axios'; // Make sure you have axios installed: npm install axios
 
-const ResetPassword = () => {
+const ResetPasswordPage = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [token, setToken] = useState('');
@@ -29,7 +24,7 @@ const ResetPassword = () => {
     }
   }, [location.search]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
     setError('');
@@ -44,9 +39,9 @@ const ResetPassword = () => {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setError('Password must be at least 6 characters long.');
-      return;
+    if (newPassword.length < 6) { // Example: enforce minimum password length
+        setError('Password must be at least 6 characters long.');
+        return;
     }
 
     setLoading(true);
@@ -66,7 +61,7 @@ const ResetPassword = () => {
         navigate('/login');
       }, 3000); // Redirect after 3 seconds
 
-    } catch (err: any) {
+    } catch (err) {
       const errorMessage = err.response?.data?.message || 'An unexpected error occurred. Please try again.';
       setError(errorMessage);
     } finally {
@@ -75,78 +70,124 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      
-      <div className="flex items-center justify-center py-16">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-insurance-primary">
-              Reset Password
-            </CardTitle>
-          </CardHeader>
-          
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded" role="alert">
-                {error}
-              </div>
-            )}
-            
-            {message && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded" role="alert">
-                {message}
-              </div>
-            )}
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h2 style={styles.title}>Reset Password</h2>
 
-            {token ? (
-              <form onSubmit={handleSubmit}>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      New Password
-                    </label>
-                    <Input
-                      type="password"
-                      placeholder="Enter new password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Confirm New Password
-                    </label>
-                    <Input
-                      type="password"
-                      placeholder="Confirm new password"
-                      value={confirmNewPassword}
-                      onChange={(e) => setConfirmNewPassword(e.target.value)}
-                      className="w-full"
-                      required
-                    />
-                  </div>
-                  
-                  <Button 
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-insurance-primary hover:bg-insurance-dark disabled:opacity-50"
-                  >
-                    {loading ? 'Resetting...' : 'Reset Password'}
-                  </Button>
-                </div>
-              </form>
-            ) : (
-              <p className="text-center text-gray-600">Loading token or token missing...</p>
-            )}
-          </CardContent>
-        </Card>
+        {error && <p style={styles.errorMessage}>{error}</p>}
+        {message && <p style={styles.successMessage}>{message}</p>}
+
+        {token ? (
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <div style={styles.formGroup}>
+              <label htmlFor="newPassword" style={styles.label}>New Password:</label>
+              <input
+                type="password"
+                id="newPassword"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                style={styles.input}
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label htmlFor="confirmNewPassword" style={styles.label}>Confirm New Password:</label>
+              <input
+                type="password"
+                id="confirmNewPassword"
+                value={confirmNewPassword}
+                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                required
+                style={styles.input}
+              />
+            </div>
+
+            <button type="submit" disabled={loading} style={styles.button}>
+              {loading ? 'Resetting...' : 'Reset Password'}
+            </button>
+          </form>
+        ) : (
+          <p>Loading token or token missing...</p>
+        )}
       </div>
     </div>
   );
 };
 
-export default ResetPassword;
+// Basic inline styles for demonstration
+const styles = {
+  container: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
+    backgroundColor: '#f0f2f5',
+    padding: '20px',
+  },
+  card: {
+    backgroundColor: '#fff',
+    padding: '30px',
+    borderRadius: '8px',
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+    width: '100%',
+    maxWidth: '400px',
+    textAlign: 'center',
+  },
+  title: {
+    marginBottom: '20px',
+    color: '#333',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+  },
+  formGroup: {
+    textAlign: 'left',
+  },
+  label: {
+    display: 'block',
+    marginBottom: '5px',
+    fontWeight: 'bold',
+    color: '#555',
+  },
+  input: {
+    width: 'calc(100% - 20px)', // Adjust for padding
+    padding: '10px',
+    border: '1px solid #ddd',
+    borderRadius: '4px',
+    fontSize: '16px',
+  },
+  button: {
+    padding: '12px 20px',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '16px',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease',
+  },
+  buttonHover: {
+    backgroundColor: '#0056b3',
+  },
+  errorMessage: {
+    color: '#dc3545',
+    marginBottom: '15px',
+    backgroundColor: '#f8d7da',
+    border: '1px solid #f5c6cb',
+    padding: '10px',
+    borderRadius: '4px',
+  },
+  successMessage: {
+    color: '#28a745',
+    marginBottom: '15px',
+    backgroundColor: '#d4edda',
+    border: '1px solid #c3e6cb',
+    padding: '10px',
+    borderRadius: '4px',
+  },
+};
+
+export default ResetPasswordPage;

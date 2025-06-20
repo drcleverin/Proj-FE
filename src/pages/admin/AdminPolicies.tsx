@@ -263,13 +263,13 @@ export default function AdminPolicies() {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button
+                        {/* <Button
                           variant="ghost"
                           size="sm"
                           className="text-orange-600 hover:text-orange-700"
                         >
                           <RotateCcw className="h-4 w-4" />
-                        </Button>
+                        </Button> */}
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button

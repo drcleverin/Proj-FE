@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LogOut, User } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useContext } from "react";
@@ -23,11 +23,24 @@ import {
 const Header = () => {
   const { user, logout, isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
+  const role = user?.role;
+
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
+  const redirectToChat = (): void => {
+        if (user.role === "CUSTOMER") {
+            window.location.href = `http://localhost:5173/`;
+        }else {
+            alert("Only customers can access this feature.");
+        }
+      
+ };
+ 
+
 
   return (
     <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border sticky top-0 z-50">
@@ -100,8 +113,12 @@ const Header = () => {
           
           {isAuthenticated ? (
             <DropdownMenu>
+              {role === "CUSTOMER" ? <Button id="csrChatBtn" onClick={redirectToChat}>CSR Chat</Button> : null}
               <DropdownMenuTrigger asChild>
+              {/* <Button id="csrChatBtn" onClick={redirectToChat}>CSR Chat</Button> */}
+
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+
                   <User className="h-4 w-4" />
                   <span className="sr-only">Open user menu</span>
                 </Button>
@@ -130,16 +147,23 @@ const Header = () => {
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </DropdownMenuItem>
-              </DropdownMenuContent>
+              </DropdownMenuContent> 
             </DropdownMenu>
           ) : (
             <div className="flex items-center space-x-2">
-              <Button asChild variant="ghost">
-                <Link to="/login">Login</Link>
-              </Button>
-              <Button asChild>
+          
+
+              {location.pathname !== "/login" && (
+                <Button asChild variant="ghost">
+                  <Link to="/login">Login</Link>
+                </Button>
+              )}
+              {location.pathname !== "/register" && (
+                <Button asChild>
                 <Link to="/register">Register</Link>
               </Button>
+              )}
+              
             </div>
           )}
         </div>
