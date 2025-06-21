@@ -84,7 +84,6 @@ const MotorInsurance = () => {
                   onChange={(e) => setFormData({...formData, registrationNumber: e.target.value})}
                 />
               </div>
-            <h1>heyyy</h1>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Make</label>

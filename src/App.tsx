@@ -22,8 +22,9 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPolicies from "./pages/admin/AdminPolicies";
 import AdminClaims from "./pages/admin/AdminClaims";
 import NotFound from "./pages/NotFound";
-import RaiseClaimPage from "./pages/RaiseClaimPage";
+import RaiseClaimPage from "./pages/ClaimPage";
 import SignupPage from "./pages/SignupPage";
+import ClaimPage from "./pages/ClaimPage";
 
 const queryClient = new QueryClient();
 
@@ -48,7 +49,8 @@ const App = () => (
 
 
               <Route path="/policy/:id" element={<PolicyDetails />} />
-              <Route path="/policyClaim/:id" element={<RaiseClaimPage />} />
+              <Route path="/claim/:policyId" element={<ClaimPage />} />
+        
               <Route path="/health-insurance" element={<HealthInsurance />} />
               <Route path="/motor-insurance" element={<MotorInsurance />} />
               <Route path="/product-insurance" element={<ProductInsurance />} />
