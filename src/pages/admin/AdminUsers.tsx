@@ -1,11 +1,11 @@
-
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, Plus, Eye, Search, Filter, MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -36,108 +35,165 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Mock user data with additional fields
-const mockUsers = [
-  {
-    id: "USR001",
-    name: "Anil Kumar",
-    email: "anil@example.com",
-    phone: "7897897896",
-    role: "User",
-    status: "Active",
-    joinDate: "2024-01-15",
-    policies: [
-      { number: "P123456789", type: "Motor Insurance", status: "Active", expiry: "2024-03-15" },
-      { number: "P123456790", type: "Health Insurance", status: "Active", expiry: "2024-06-15" }
-    ],
-    claims: [
-      { id: "CLM-2025-06-001", policy: "P123456789", type: "Vehicle Damage", status: "Under Review" }
-    ]
-  },
-  {
-    id: "USR002",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    phone: "9876543210",
-    role: "Premium",
-    status: "Active",
-    joinDate: "2024-02-20",
-    policies: [
-      { number: "P123456791", type: "Health Insurance", status: "Active", expiry: "2024-08-20" }
-    ],
-    claims: []
-  },
-  {
-    id: "USR003",
-    name: "Bob Johnson",
-    email: "bob@example.com",
-    phone: "5551234567",
-    role: "User",
-    status: "Inactive",
-    joinDate: "2024-03-10",
-    policies: [],
-    claims: []
-  },
-];
-
 export default function AdminUsers() {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState([]); // Initialize with empty array, will fetch from API
   const [editingUser, setEditingUser] = useState(null);
   const [viewingUser, setViewingUser] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newUser, setNewUser] = useState({
-    name: "",
+    username: "",
     email: "",
-    phone: "",
-    role: "User",
-    status: "Active"
+    password: "", // Add password field for new user creation
+    role: {
+      roleId: 1, // Default to CUSTOMER roleId
+      roleType: "CUSTOMER" // Default to CUSTOMER roleType
+    }
   });
   const [searchTerm, setSearchTerm] = useState("");
 
+  const API_BASE_USERS_URL = "http://localhost:8093/admin/users";
+  const API_POLICIES_BY_USER_URL = "http://localhost:8093/api/policies/byUser";
+  // New API endpoint for claims by policy
+  const API_CLAIMS_BY_POLICY_URL = "http://localhost:8093/api/claims/policy";
+
+  // Fetch users from the backend on component mount
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(API_BASE_USERS_URL);
+      // Map backend user data to match frontend structure for display
+      const transformedUsers = response.data.map(user => ({
+        id: user.userId,
+        name: user.username,
+        email: user.email,
+        phone: "N/A", // Backend doesn't have phone, so set a default
+        role: user.role.roleType,
+        status: "Active", // Assuming all fetched users are active, adjust if backend has status
+        joinDate: "N/A", // Backend doesn't have joinDate, so set a default
+        policies: [], // Policies will be fetched separately when viewing a user
+        claims: [] // Claims will be fetched separately for each policy when viewing a user
+      }));
+      setUsers(transformedUsers);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      // Optionally show an error message to the user
+    }
+  };
+
+  const fetchClaimsForPolicy = async (policyId) => {
+    try {
+      const response = await axios.get(`${API_CLAIMS_BY_POLICY_URL}/${policyId}`);
+      // Map backend claim data to frontend structure
+      const transformedClaims = response.data.map(claim => ({
+        id: claim.claimId,
+        policy: claim.policyId, // Link to policy ID
+        type: claim.claimReason,
+        status: claim.claimStatus,
+        dateOfIncident: claim.dateOfIncident,
+        location: claim.location
+      }));
+      return transformedClaims;
+    } catch (error) {
+      console.error(`Error fetching claims for policy ${policyId}:`, error);
+      return []; // Return empty array on error
+    }
+  };
+
+  const fetchPoliciesForUser = async (userId) => {
+    try {
+      const response = await axios.get(`${API_POLICIES_BY_USER_URL}/${userId}`);
+      // Map backend policy data to frontend structure
+      const transformedPolicies = await Promise.all(response.data.map(async (policy) => {
+        const claims = await fetchClaimsForPolicy(policy.policyId); // Fetch claims for each policy
+        return {
+          number: policy.policyId, // Using policyId as policy number
+          type: `Plan ID: ${policy.planId}`, // Displaying planId as type, adjust as needed
+          status: policy.policyStatus,
+          expiry: policy.policyEndDate,
+          claims: claims // Attach claims to the policy
+        };
+      }));
+      return transformedPolicies;
+    } catch (error) {
+      console.error(`Error fetching policies for user ${userId}:`, error);
+      return []; // Return empty array on error
+    }
+  };
+
   const handleEdit = (user) => {
-    setEditingUser(user);
+    // When editing, map the frontend structure back to the backend structure
+    setEditingUser({
+      userId: user.id,
+      username: user.name,
+      email: user.email,
+      // Password is not fetched for security, so it won't be in editingUser initially
+      role: {
+        roleId: user.role === "CUSTOMER" ? 1 : (user.role === "ADMIN" ? 2 : 1), // Map roleType to roleId
+        roleType: user.role
+      }
+    });
     setIsEditDialogOpen(true);
   };
 
-  const handleView = (user) => {
-    setViewingUser(user);
+  const handleView = async (user) => {
+    // Fetch policies for the selected user, which now also fetches claims
+    const policies = await fetchPoliciesForUser(user.id);
+
+    // Aggregate all claims from all policies for this user
+    const allClaims = policies.flatMap(policy => policy.claims);
+
+    setViewingUser({ ...user, policies, claims: allClaims }); // Add policies and all aggregated claims to the viewingUser object
     setIsViewDialogOpen(true);
   };
 
-  const handleDelete = (userId) => {
-    setUsers(users.filter(user => user.id !== userId));
-  };
-
-  const handleSave = () => {
-    if (editingUser) {
-      setUsers(users.map(user => 
-        user.id === editingUser.id ? editingUser : user
-      ));
+  const handleDelete = async (userId) => {
+    try {
+      await axios.delete(`${API_BASE_USERS_URL}/delete/${userId}`);
+      fetchUsers(); // Refresh the user list after deletion
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      // Optionally show an error message to the user
     }
-    setIsEditDialogOpen(false);
-    setEditingUser(null);
   };
 
-  const handleAddUser = () => {
-    const userId = `USR${String(users.length + 1).padStart(3, '0')}`;
-    const newUserData = {
-      ...newUser,
-      id: userId,
-      joinDate: new Date().toISOString().split('T')[0],
-      policies: [],
-      claims: []
-    };
-    setUsers([...users, newUserData]);
-    setIsAddDialogOpen(false);
-    setNewUser({
-      name: "",
-      email: "",
-      phone: "",
-      role: "User",
-      status: "Active"
-    });
+  const handleSave = async () => {
+    if (editingUser) {
+      try {
+        // Send the updated user data to the backend
+        await axios.put(`${API_BASE_USERS_URL}/${editingUser.userId}`, editingUser);
+        fetchUsers(); // Refresh the user list after saving
+        setIsEditDialogOpen(false);
+        setEditingUser(null);
+      } catch (error) {
+        console.error("Error saving user:", error);
+        // Optionally show an error message to the user
+      }
+    }
+  };
+
+  const handleAddUser = async () => {
+    try {
+      await axios.post(API_BASE_USERS_URL, newUser);
+      fetchUsers(); // Refresh the user list after adding
+      setIsAddDialogOpen(false);
+      setNewUser({
+        username: "",
+        email: "",
+        password: "",
+        role: {
+          roleId: 1,
+          roleType: "CUSTOMER"
+        }
+      });
+    } catch (error) {
+      console.error("Error adding user:", error);
+      // Optionally show an error message to the user
+    }
   };
 
   const filteredUsers = users.filter(user =>
@@ -221,7 +277,7 @@ export default function AdminUsers() {
                 <TableRow>
                   <TableHead>USER ID</TableHead>
                   <TableHead>NAME</TableHead>
-                  <TableHead>PHONE</TableHead>
+                  <TableHead>EMAIL</TableHead>
                   <TableHead>ROLE</TableHead>
                   <TableHead>STATUS</TableHead>
                   <TableHead>ACTIONS</TableHead>
@@ -232,14 +288,14 @@ export default function AdminUsers() {
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">{user.id}</TableCell>
                     <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.phone}</TableCell>
+                    <TableCell>{user.email}</TableCell>
                     <TableCell>
                       <Badge variant={user.role === "Premium" ? "default" : "secondary"}>
                         {user.role}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge 
+                      <Badge
                         variant={user.status === "Active" ? "default" : "destructive"}
                         className={user.status === "Active" ? "bg-green-100 text-green-800" : ""}
                       >
@@ -310,11 +366,11 @@ export default function AdminUsers() {
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="new-name" className="text-right">Name</Label>
+                <Label htmlFor="new-username" className="text-right">Username</Label>
                 <Input
-                  id="new-name"
-                  value={newUser.name}
-                  onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                  id="new-username"
+                  value={newUser.username}
+                  onChange={(e) => setNewUser({...newUser, username: e.target.value})}
                   className="col-span-3"
                 />
               </div>
@@ -329,27 +385,27 @@ export default function AdminUsers() {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="new-phone" className="text-right">Phone</Label>
+                <Label htmlFor="new-password" className="text-right">Password</Label>
                 <Input
-                  id="new-phone"
-                  value={newUser.phone}
-                  onChange={(e) => setNewUser({...newUser, phone: e.target.value})}
+                  id="new-password"
+                  type="password"
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({...newUser, password: e.target.value})}
                   className="col-span-3"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="new-role" className="text-right">Role</Label>
                 <Select
-                  value={newUser.role}
-                  onValueChange={(value) => setNewUser({...newUser, role: value})}
+                  value={newUser.role.roleType}
+                  onValueChange={(value) => setNewUser({...newUser, role: { roleId: value === "CUSTOMER" ? 1 : (value === "ADMIN" ? 2 : 1), roleType: value }})}
                 >
                   <SelectTrigger className="col-span-3">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="User">User</SelectItem>
-                    <SelectItem value="Premium">Premium</SelectItem>
-                    <SelectItem value="Admin">Admin</SelectItem>
+                    <SelectItem value="CUSTOMER">Customer</SelectItem>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -374,11 +430,11 @@ export default function AdminUsers() {
             {editingUser && (
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">Name</Label>
+                  <Label htmlFor="username" className="text-right">Username</Label>
                   <Input
-                    id="name"
-                    value={editingUser.name}
-                    onChange={(e) => setEditingUser({...editingUser, name: e.target.value})}
+                    id="username"
+                    value={editingUser.username}
+                    onChange={(e) => setEditingUser({...editingUser, username: e.target.value})}
                     className="col-span-3"
                   />
                 </div>
@@ -392,42 +448,17 @@ export default function AdminUsers() {
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="phone" className="text-right">Phone</Label>
-                  <Input
-                    id="phone"
-                    value={editingUser.phone}
-                    onChange={(e) => setEditingUser({...editingUser, phone: e.target.value})}
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="role" className="text-right">Role</Label>
                   <Select
-                    value={editingUser.role}
-                    onValueChange={(value) => setEditingUser({...editingUser, role: value})}
+                    value={editingUser.role.roleType}
+                    onValueChange={(value) => setEditingUser({...editingUser, role: { roleId: value === "CUSTOMER" ? 1 : (value === "ADMIN" ? 2 : 1), roleType: value }})}
                   >
                     <SelectTrigger className="col-span-3">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="User">User</SelectItem>
-                      <SelectItem value="Premium">Premium</SelectItem>
-                      <SelectItem value="Admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="status" className="text-right">Status</Label>
-                  <Select
-                    value={editingUser.status}
-                    onValueChange={(value) => setEditingUser({...editingUser, status: value})}
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
+                      <SelectItem value="CUSTOMER">Customer</SelectItem>
+                      <SelectItem value="ADMIN">Admin</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -467,10 +498,6 @@ export default function AdminUsers() {
                       <p className="text-sm text-gray-600">{viewingUser.email}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium">Phone</Label>
-                      <p className="text-sm text-gray-600">{viewingUser.phone}</p>
-                    </div>
-                    <div>
                       <Label className="text-sm font-medium">Role</Label>
                       <Badge variant="secondary">{viewingUser.role}</Badge>
                     </div>
@@ -483,7 +510,7 @@ export default function AdminUsers() {
                   </div>
                 </div>
 
-                {/* Associated Policies Tab */}
+                {/* Associated Policies Section */}
                 <div className="border rounded-lg p-4">
                   <h3 className="text-lg font-semibold mb-4 border-b pb-2">Associated Policies</h3>
                   <Table>
@@ -496,45 +523,61 @@ export default function AdminUsers() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {viewingUser.policies?.map((policy, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{policy.number}</TableCell>
-                          <TableCell>{policy.type}</TableCell>
-                          <TableCell>
-                            <Badge variant={policy.status === "Active" ? "default" : "destructive"}>
-                              {policy.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{policy.expiry}</TableCell>
+                      {viewingUser.policies?.length > 0 ? (
+                        viewingUser.policies.map((policy, index) => (
+                          <TableRow key={index}>
+                            <TableCell>{policy.number}</TableCell>
+                            <TableCell>{policy.type}</TableCell>
+                            <TableCell>
+                              <Badge variant={policy.status === "ACTIVE" ? "default" : "secondary"}>
+                                {policy.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{policy.expiry}</TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground">No policies found for this user.</TableCell>
                         </TableRow>
-                      ))}
+                      )}
                     </TableBody>
                   </Table>
                 </div>
 
-                {/* Claims History Tab */}
+                {/* Claims History Section */}
                 <div className="border rounded-lg p-4">
                   <h3 className="text-lg font-semibold mb-4 border-b pb-2">Claims History</h3>
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Claim ID</TableHead>
-                        <TableHead>Policy</TableHead>
-                        <TableHead>Claim Type</TableHead>
+                        <TableHead>Policy ID</TableHead>
+                        <TableHead>Claim Reason</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Incident Date</TableHead>
+                        <TableHead>Location</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {viewingUser.claims?.map((claim, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{claim.id}</TableCell>
-                          <TableCell>{claim.policy}</TableCell>
-                          <TableCell>{claim.type}</TableCell>
-                          <TableCell>
-                            <Badge variant="secondary">{claim.status}</Badge>
-                          </TableCell>
+                      {viewingUser.claims?.length > 0 ? (
+                        viewingUser.claims.map((claim, index) => (
+                          <TableRow key={index}>
+                            <TableCell>{claim.id}</TableCell>
+                            <TableCell>{claim.policy}</TableCell>
+                            <TableCell>{claim.type}</TableCell>
+                            <TableCell>
+                              <Badge variant="secondary">{claim.status}</Badge>
+                            </TableCell>
+                            <TableCell>{claim.dateOfIncident}</TableCell>
+                            <TableCell>{claim.location}</TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center text-muted-foreground">No claims found for this user.</TableCell>
                         </TableRow>
-                      ))}
+                      )}
                     </TableBody>
                   </Table>
                 </div>
