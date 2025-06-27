@@ -9,7 +9,7 @@ const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('customer');
+  const [role, setRole] = useState('');
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ const Register = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ username, email, password })
+        body: JSON.stringify({ username, email, password,roleType: role })
       });
 
       if (response.ok) {
@@ -108,10 +108,10 @@ const Register = () => {
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
                   >
-                    <option value="customer">Customer</option>
-                    <option value="csr">CSR</option>
-                    <option value="underwriter">Underwriter</option>
-                    <option value="admin">Admin</option>
+                    <option value="CUSTOMER">Customer</option>
+                    {/* <option value="csr">CSR</option>
+                    <option value="underwriter">Underwriter</option> */}
+                    <option value="ADMIN">Admin</option>
                   </select>
                 </div>
 

@@ -1,5 +1,5 @@
 // src/components/PolicyDetails.tsx
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import Header from "../components/Header"; // Corrected import path
 import Chatbot from "../components/Chatbot"; // Corrected import path
 import Footer from "../components/Footer"; // Corrected import path
+import ClaimPage from "../pages/ClaimPage"
 import { ArrowLeft, Download, Phone, Mail, FileText, Calendar, CreditCard, Shield } from "lucide-react";
 
 // Define the interface for the policy data fetched from the backend (matches PolicyResponseDTO)
@@ -50,6 +51,7 @@ interface PolicyDisplay extends FetchedPolicyData {
   effectiveDate: string; // Formatted policyStartDate
   premiumFormatted: string; // Formatted premiumAmount
   sumInsuredFormatted: string; // Formatted coverage
+  expiryDate: string;
 }
 
 const PolicyDetails = () => {
@@ -57,7 +59,7 @@ const PolicyDetails = () => {
   const [policy, setPolicy] = useState<PolicyDisplay | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [showRenewalPopup, setShowRenewalPopup] = useState(false); // New state for pop-up visibility
   // Helper functions (same as in Dashboard.tsx or centralized)
   const getPolicyIcon = (planType: string): string => {
     switch (planType.toLowerCase()) {
@@ -97,14 +99,14 @@ const PolicyDetails = () => {
   };
 
   // Mock benefits and documents - ideally these would come from more detailed backend APIs
-  const getMockBenefits = (planType: string): string[] => {
-    switch (planType.toLowerCase()) {
-      case "motor": return ["Own Damage Coverage", "Third Party Liability", "Personal Accident: ₹15,00,000", "24x7 Roadside Assistance"];
-      case "health": return ["Hospitalization Coverage", "Pre & Post Hospitalization", "Day Care Procedures", "Annual Health Check-up"];
-      case "product": return ["Manufacturing Defects", "Electrical/Mechanical Breakdown", "Screen Protection", "Pick-up & Drop Service"];
-      default: return ["Basic Coverage"];
-    }
-  };
+  // const getMockBenefits = (planType: string): string[] => {
+  //   switch (planType.toLowerCase()) {
+  //     case "motor": return ["Own Damage Coverage", "Third Party Liability", "Personal Accident: ₹15,00,000", "24x7 Roadside Assistance"];
+  //     case "health": return ["Hospitalization Coverage", "Pre & Post Hospitalization", "Day Care Procedures", "Annual Health Check-up"];
+  //     case "product": return ["Manufacturing Defects", "Electrical/Mechanical Breakdown", "Screen Protection", "Pick-up & Drop Service"];
+  //     default: return ["Basic Coverage"];
+  //   }
+  // };
 
   const getMockDocuments = (planType: string): string[] => {
     switch (planType.toLowerCase()) {
@@ -119,6 +121,36 @@ const PolicyDetails = () => {
     // This would ideally come from backend with specific Health policy member details
     return ["Rajesh Sharma (Primary)", "Priya Sharma (Spouse)", "Rohan Sharma (Son)"];
   };
+
+  // Add this helper function inside or outside your component, or as a utility
+const getDaysUntilExpiration = (endDateString: string): number => {
+  if (!endDateString) return -1; // Or handle as an error state
+  const endDate = new Date(endDateString);
+  const currentDate = new Date();
+
+  // Reset time to midnight for accurate day comparison
+  endDate.setHours(0, 0, 0, 0);
+  currentDate.setHours(0, 0, 0, 0);
+
+  const diffTime = endDate.getTime() - currentDate.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+};
+// Inside your PolicyDetails functional component
+const handleRenewPolicyClick = () => {
+  if (!policy) return; // Should not happen if button is only rendered when policy is loaded
+
+  const daysUntilExpiration = getDaysUntilExpiration(policy.policyEndDate);
+  const renewalThresholdDays = 90; // Define your threshold
+
+  if (daysUntilExpiration > renewalThresholdDays) {
+    setShowRenewalPopup(true); // Show the pop-up
+  } else {
+    // If within or past the renewal window, navigate to the renewal page
+    // Replace '/renew-policy' with your actual renewal route
+    // navigate(`/renew-policy/${policy.id}`);
+  }
+};
 
   useEffect(() => {
     const fetchPolicyDetails = async () => {
@@ -135,13 +167,25 @@ const PolicyDetails = () => {
         console.log(`Fetching policy details for ID: ${id}`);
         const response = await fetch(`http://localhost:8093/api/dashboard/viewpolicy/${id}`);
 
-        if (!response.ok) {
+        if (!response.ok) { 
           if (response.status === 404) {
             throw new Error("Policy not found.");
           }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data: FetchedPolicyData = await response.json(); // Backend returns FetchedPolicyData
+
+        const parsedBenefitsArray: string[] = [];
+        if (data.descriptionAboutPolicy && typeof data.descriptionAboutPolicy === 'string') {
+          // Split by '.' and filter out any empty strings (e.g., from trailing dots)
+          data.descriptionAboutPolicy.split('.')
+            .forEach(benefit => {
+              const trimmedBenefit = benefit.trim();
+              if (trimmedBenefit) { // Add only non-empty, non-whitespace benefits
+                parsedBenefitsArray.push(trimmedBenefit);
+              }
+            });
+        }
 
         // Map backend data to frontend display format
         const mappedPolicy: PolicyDisplay = {
@@ -151,7 +195,8 @@ const PolicyDetails = () => {
           category: getCategoryName(data.planType), // Map type to category name
           insured: `Customer ID: ${data.userId}`, // Placeholder
           icon: getPolicyIcon(data.planType), // Get icon based on planType
-          benefits: getMockBenefits(data.planType), // Mock benefits
+          // benefits: getMockBenefits(data.planType), // Mock benefits
+          benefits:parsedBenefitsArray,
           documents: getMockDocuments(data.planType), // Mock documents
           premiumFormatted: `₹${data.premiumAmount.toLocaleString('en-IN')}`, // Format premium
           sumInsuredFormatted: `₹${data.coverage.toLocaleString('en-IN')}`, // Format sum insured from coverage
@@ -218,6 +263,12 @@ const PolicyDetails = () => {
   };
 
 
+  // const navigate = useNavigate(); // Initialize useNavigate
+  
+  //   const handleGoToClaimPage = () => {
+  //     navigate('/claimPage'); // Navigate to the /dashboard route
+  //   };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -261,7 +312,7 @@ const PolicyDetails = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6 mb-6 text-base">
                   <div>
                     <span className="text-sm text-muted-foreground block">Policy Number</span>
-                    <p className="font-semibold text-gray-900">{policy.policyNumber}</p>
+                    <p className="font-semibold text-gray-900">{policy.id}</p>
                   </div>
                   <div>
                     <span className="text-sm text-muted-foreground block">Category</span>
@@ -356,13 +407,18 @@ const PolicyDetails = () => {
                 <CardTitle className="text-xl font-bold text-gray-800">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="p-0 space-y-4">
-                <Button className="w-full bg-insurance-primary hover:bg-insurance-dark text-white text-base py-2.5">
+                <Button
+                  className="w-full bg-insurance-primary hover:bg-insurance-dark text-white text-base py-2.5"
+                  onClick={handleRenewPolicyClick} // Add the onClick handler
+                >
                   <CreditCard className="h-5 w-5 mr-3" />
                   Renew Policy
                 </Button>
                 <Button variant="outline" className="w-full text-base py-2.5 text-gray-700 hover:bg-gray-100 border-gray-300">
                   <FileText className="h-5 w-5 mr-3" />
-                  Make a Claim
+                  <Link to={`/claim/${id}`}>Make a Claim</Link>
+                  {/* <FileText className="h-5 w-5 mr-3" />
+                  Make a Claim */}
                 </Button>
                 <Button variant="outline" className="w-full text-base py-2.5 text-gray-700 hover:bg-gray-100 border-gray-300">
                   <Download className="h-5 w-5 mr-3" />
@@ -380,6 +436,16 @@ const PolicyDetails = () => {
                 <div className="space-y-2">
                   {policy.documents.map((doc, index) => (
                     <Button key={index} variant="ghost" className="w-full justify-start text-base px-3 py-2.5">
+                      {/* <a
+                        href="public/documents/doc.pdf" // Direct path to the file in the public folder
+                        download="file.pdf" // Suggested filename for the downloaded file
+                        // target="_blank" // Optional: Opens the link in a new tab
+                        // rel="noopener noreferrer" // Recommended for security with target="_blank"
+        
+                      >
+                        <FileText className="h-5 w-5 mr-3 text-insurance-primary" />
+                      {doc}
+                      </a> */}
                       <FileText className="h-5 w-5 mr-3 text-insurance-primary" />
                       {doc}
                     </Button>
@@ -394,13 +460,25 @@ const PolicyDetails = () => {
                 <CardTitle className="text-xl font-bold text-gray-800">Need Help?</CardTitle>
               </CardHeader>
               <CardContent className="p-0 space-y-4">
-                <Button variant="outline" className="w-full text-base py-2.5 text-gray-700 hover:bg-gray-100 border-gray-300">
-                  <Phone className="h-5 w-5 mr-3" />
-                  Call Support
+                <Button
+                  variant="outline"
+                  className="w-full text-base py-2.5 text-gray-700 hover:bg-gray-100 border-gray-300"
+                  asChild // Important: tells the Button to render as its child (the <a> tag)
+                >
+                  <a href="tel:+919876543210"> {/* Tel link */}
+                    <Phone className="h-5 w-5 mr-3" />
+                    Call Support
+                  </a>
                 </Button>
-                <Button variant="outline" className="w-full text-base py-2.5 text-gray-700 hover:bg-gray-100 border-gray-300">
-                  <Mail className="h-5 w-5 mr-3" />
-                  Email Support
+                <Button
+                  variant="outline"
+                  className="w-full text-base py-2.5 text-gray-700 hover:bg-gray-100 border-gray-300"
+                  asChild // Important: tells the Button to render as its child (the <a> tag)
+                >
+                  <a href="mailto:ajay1heroic1@gmail.com"> {/* Mailto link */}
+                    <Mail className="h-5 w-5 mr-3" />
+                    Email Support
+                  </a>
                 </Button>
               </CardContent>
             </Card>
@@ -410,6 +488,23 @@ const PolicyDetails = () => {
 
       <Footer />
       <Chatbot />
+      {showRenewalPopup && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+      <h3 className="text-xl font-bold mb-4 text-gray-800">Renewal Not Yet Available</h3>
+      <p className="text-gray-700 mb-6">
+        Policy renewal is typically enabled when the expiration date is less than 90 days away.
+        Your policy expires on <span className="font-semibold">{policy.expiryDate}</span>.
+      </p>
+      <Button
+        onClick={() => setShowRenewalPopup(false)}
+        className="bg-insurance-primary hover:bg-insurance-dark text-white"
+      >
+        Got It
+      </Button>
+    </div>
+  </div>
+)}
     </div>
   );
 };

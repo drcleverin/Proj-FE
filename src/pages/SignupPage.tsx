@@ -6,7 +6,7 @@ const SignupPage: React.FC = () => {
     const [userName, setUserName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [role, setRole] = useState<string>('USER'); // Default role
+    const [role, setRole] = useState<string>(''); // Default role
     const [dateOfBirth, setDateOfBirth] = useState<string>('');
     const [address, setAddress] = useState<string>('');
     const [contactInformation, setContactInformation] = useState<string>(''); // Keep as string for input, convert to long for API
@@ -36,14 +36,14 @@ const SignupPage: React.FC = () => {
             userName,
             email,
             password,
-            role,
+            roleType:role,
             dateOfBirth, // Can be empty if not required by backend validation
             address,     // Can be empty if not required by backend validation
             contactInformation: numericContactInfo
         };
 
         try {
-            const response = await fetch('http://localhost:8069/api/auth/register', {
+            const response = await fetch('http://localhost:8093/api/auth/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ const SignupPage: React.FC = () => {
                 setUserName('');
                 setEmail('');
                 setPassword('');
-                setRole('CLIENT');
+                setRole('');
                 setDateOfBirth('');
                 setAddress('');
                 setContactInformation('');
@@ -123,7 +123,7 @@ const SignupPage: React.FC = () => {
                         required
                         style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
                     >
-                        <option value="USER">USER</option>
+                        <option value="CUSTOMER">CUSTOMER</option>
                         <option value="ADMIN">ADMIN</option> {/* If you have an ADMIN role */}
                     </select>
                 </div>

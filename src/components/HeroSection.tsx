@@ -62,7 +62,7 @@ const HeroSection = () => {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-insurance-accent/20 to-transparent rounded-3xl"></div>
               <img
-                src="/placeholder.svg"
+                src="public/carImg.jpg"
                 alt="Luxury Car"
                 className="w-full h-auto rounded-3xl shadow-2xl"
               />

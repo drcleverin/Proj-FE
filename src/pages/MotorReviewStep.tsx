@@ -617,10 +617,24 @@ const MotorReviewStep: React.FC<MotorReviewStepProps> = ({ personalFormData, fet
     }
 
     // 2. Submit policy details
+    // const now = new Date();
+    // const policyStartDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString(); // Tomorrow's date
+    // const policyEndDate = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate() ).toISOString(); // One year from tomorrow
+    // console.log(policyStartDate,policyEndDate,"...............")
     const now = new Date();
-    const policyStartDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString(); // Tomorrow's date
-    const policyEndDate = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate() + 1).toISOString(); // One year from tomorrow
 
+// Get today's date components in local time
+const currentYear = now.getFullYear();
+const currentMonth = now.getMonth();
+const currentDay = now.getDate();
+
+// For policyStartDate: Set it to the beginning of today in UTC
+const policyStartDate = new Date(Date.UTC(currentYear, currentMonth, currentDay)).toISOString();
+
+// For policyEndDate: Set it to the beginning of the same day next year in UTC
+const policyEndDate = new Date(Date.UTC(currentYear + 1, currentMonth, currentDay)).toISOString();
+
+console.log(policyStartDate, policyEndDate, "............... (Using Date.UTC)");
     // Extract numerical premium from the formatted string, e.g., "₹7,800" -> 7800
     const premiumAmountNumber = parseFloat(selectedPlan.price.replace(/[₹,]/g, ''));
 

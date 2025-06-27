@@ -3,8 +3,14 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 const HealthConfirmationStep: React.FC = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleGoToDashboard = () => {
+    navigate('/dashboard'); // Navigate to the /dashboard route
+  };
   return (
     <Card className="shadow-lg">
       <CardContent className="text-center py-12">
@@ -13,7 +19,8 @@ const HealthConfirmationStep: React.FC = () => {
         </div>
         <h2 className="text-2xl font-bold text-foreground mb-2">Application Submitted!</h2>
         <p className="text-muted-foreground mb-6">Your policy application has been received and is being processed.</p>
-        <Button className="bg-insurance-primary hover:bg-insurance-dark">
+        <Button className="bg-insurance-primary hover:bg-insurance-dark"
+        onClick={handleGoToDashboard}>
           Go to Dashboard
         </Button>
       </CardContent>

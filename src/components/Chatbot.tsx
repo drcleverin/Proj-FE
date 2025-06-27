@@ -161,57 +161,90 @@ const ChatInterface = () => {
     setIsTyping(true);
 
     try {
-      const chatHistory = [{ role: "user", parts: [{ text: text.trim() }] }];
-      const payload = { contents: chatHistory };
-      const apiKey = ""; // Canvas will provide this at runtime
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+  const chatHistory = [{ role: "user", parts: [{ text: text?.trim() || "" }] }];
 
-      if (!response.ok) {
-        throw new Error(`API error! Status: ${response.status}`);
-      }
+  const payload = { query: text }; // match your FastAPI model with a 'query' field
 
-      const result = await response.json();
-      let agentMessageText = "";
+  const apiUrl = "https://groqapibackend.onrender.com/ask";
+ 
+  const response = await fetch(apiUrl, {
 
-      if (result.candidates && result.candidates.length > 0 &&
-          result.candidates[0].content && result.candidates[0].content.parts &&
-          result.candidates[0].content.parts.length > 0) {
-        agentMessageText = result.candidates[0].content.parts[0].text;
-      } else {
-        agentMessageText = "Sorry, I couldn't get a valid response from the AI.";
-      }
+    method: "POST",
 
-      const formattedText = formatInsurancePlans(agentMessageText);
+    headers: { "Content-Type": "application/json" },
 
-      const agentMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: "agent",
-        text: formattedText,
-        timestamp: new Date()
-      };
+    body: JSON.stringify(payload),
 
-      setMessages(prev => [...prev, agentMessage]);
+  });
+ 
+  if (!response.ok || !response.body) {
 
-    } catch (error) {
-      console.error("Error communicating with AI:", error);
-      setMessages(prev => [
-        ...prev,
-        {
-          id: (Date.now() + 2).toString(),
-          role: "agent",
-          text: "Oops! Something went wrong while processing your request. Please try again.",
-          timestamp: new Date()
-        }
-      ]);
-    } finally {
-      setIsTyping(false);
-    }
+    throw new Error(`API error! Status: ${response.status}`);
+
+  }
+ 
+  const reader = response.body.getReader();
+
+  const decoder = new TextDecoder("utf-8");
+
+  let agentMessageText = "";
+ 
+  while (true) {
+
+    const { done, value } = await reader.read();
+
+    if (done) break;
+
+    agentMessageText += decoder.decode(value, { stream: true });
+
+  }
+ 
+  const formattedText = formatInsurancePlans(agentMessageText.trim());
+ 
+  const agentMessage: ChatMessage = {
+
+    id: (Date.now() + 1).toString(),
+
+    role: "agent",
+
+    text: formattedText,
+
+    timestamp: new Date(),
+
+  };
+ 
+  setMessages((prev) => [...prev, agentMessage]);
+
+} catch (error) {
+
+  console.error("Error communicating with AI:", error);
+
+  setMessages((prev) => [
+
+    ...prev,
+
+    {
+
+      id: (Date.now() + 2).toString(),
+
+      role: "agent",
+
+      text: "Oops! Something went wrong while processing your request. Please try again.",
+
+      timestamp: new Date(),
+
+    },
+
+  ]);
+
+} finally {
+
+  setIsTyping(false);
+
+}
+
+ 
   };
 
   // Helper to clean and format insurance plan suggestions

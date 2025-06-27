@@ -32,7 +32,7 @@ const Login = () => {
       // Example:
       switch (loggedInUser.role) {
         case 'ADMIN':
-          navigate('/admin-dashboard'); // Or wherever your admin dashboard is
+          navigate('/admin'); // Or wherever your admin dashboard is
           break;
         case 'CUSTOMER':
           navigate('/dashboard'); // Or wherever your customer dashboard is

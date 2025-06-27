@@ -11,7 +11,9 @@ import {
   SidebarMenuItem,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import AuthContext from "@/context/AuthContext";
 
 const menuItems = [
   {
@@ -58,12 +60,15 @@ const menuItems = [
 
 export function AdminSidebar() {
   const location = useLocation();
-
+  const navigate = useNavigate();
+    const { logout } = useContext(AuthContext);
   const handleLogout = () => {
     // Add logout logic here
-    console.log("Logging out...");
-    // For now, redirect to login page
-    window.location.href = "/login";
+    // console.log("Logging out...");
+    // // For now, redirect to login page
+    // window.location.href = "/login";
+    logout();
+        navigate("/login");
   };
 
   return (

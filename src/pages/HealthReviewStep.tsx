@@ -114,23 +114,26 @@ const HealthReviewStep: React.FC<HealthReviewStepProps> = ({ selectedPlan, perso
 
         // Prepare policy data (dummy values for required fields, replace as needed)
         const now = new Date();
-     
-        const tomorrow = new Date(now);
-        tomorrow.setDate(tomorrow.getDate() + 1);
 
-        const policyStartDate = tomorrow.toISOString();
-        console.log(policyStartDate);
+// Get today's date components in local time
+const currentYear = now.getFullYear();
+const currentMonth = now.getMonth();
+const currentDay = now.getDate();
 
-        // const policyStartDate = now.toISOString();
-        const policyEndDate = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate()).toISOString();
+// For policyStartDate: Set it to the beginning of today in UTC
+const policyStartDate = new Date(Date.UTC(currentYear, currentMonth, currentDay)).toISOString();
 
+// For policyEndDate: Set it to the beginning of the same day next year in UTC
+const policyEndDate = new Date(Date.UTC(currentYear + 1, currentMonth, currentDay)).toISOString();
+
+console.log(policyStartDate, policyEndDate, "............... (Using Date.UTC)");
         const policyData = {
             policyId: null, // Let backend generate
             policyStartDate,
             policyEndDate,
             policyStatus: "PENDING",
             premiumAmount: Number(selectedPlan.price.replace(/[^\d.]/g, "")), // Extract number from price string
-            planId: selectedPlan.planId, // Replace with actual planId if available in selectedPlan
+            planname: selectedPlan.name, // Replace with actual planId if available in selectedPlan
             userId: userId,
             // vehicleId: 1, // Replace with actual vehicleId if applicable
         };

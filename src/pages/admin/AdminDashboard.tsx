@@ -1,5 +1,6 @@
 
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import Header from "@/components/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 
@@ -30,6 +31,7 @@ const policyTypeData = [
 
 export default function AdminDashboard() {
   return (
+    
     <AdminLayout>
       <div className="space-y-4">
         <div>

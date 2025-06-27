@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea'; // Assuming you have a Textarea component
 import { Loader2 } from 'lucide-react'; // For loading indicator
+import Header from '@/components/Header';
 
 // Define the shape of the form data for frontend state
 interface ClaimFormData {
@@ -185,8 +186,11 @@ const ClaimApplicationForm: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-background flex flex-col items-center py-8 px-4 font-inter">
+        
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+            <Header />
             {/* Assuming Header, Footer, Chatbot are available globally or imported into a wrapper */}
+            {/* <Header /> */}
             {/* <Header /> */}
 
             <div className="container mx-auto max-w-2xl">
