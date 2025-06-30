@@ -113,7 +113,7 @@ const Header = () => {
           
           {isAuthenticated ? (
             <DropdownMenu>
-              {role === "CUSTOMER" ? <Button id="csrChatBtn" onClick={redirectToChat}>CSR Chat</Button> : null}
+              {/* {role === "CUSTOMER" ? <Button id="csrChatBtn" onClick={redirectToChat}>CSR Chat</Button> : null} */}
               <DropdownMenuTrigger asChild>
               {/* <Button id="csrChatBtn" onClick={redirectToChat}>CSR Chat</Button> */}
 

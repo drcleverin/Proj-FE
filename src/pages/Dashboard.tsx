@@ -47,6 +47,8 @@ const Dashboard = () => {
   const [policies, setPolicies] = useState<PolicyDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showRenewalPopup, setShowRenewalPopup] = useState(false);
+  const [selectedPolicyForRenewal, setSelectedPolicyForRenewal] = useState<PolicyDisplay | null>(null);
 
   // Helper functions to map backend planType to frontend UI elements
   const getPolicyIcon = (planType: string): string => {
@@ -82,7 +84,38 @@ const Dashboard = () => {
     return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
+  const getDaysUntilExpiration = (endDateString: string): number => {
+    if (!endDateString) return -1;
+    const endDate = new Date(endDateString);
+    const currentDate = new Date();
 
+    // Reset time to midnight for accurate day comparison
+    endDate.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+
+    const diffTime = endDate.getTime() - currentDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  // Handler for the Renew button click
+  const handleRenewPolicyClick = (policyToRenew: PolicyDisplay) => {
+    const daysUntilExpiration = getDaysUntilExpiration(policyToRenew.policyEndDate);
+    const renewalThresholdDays = 90; // Policies can be renewed within 90 days
+
+    if (daysUntilExpiration > renewalThresholdDays) {
+      // Policy is not yet within the renewal window, show the pop-up
+      setSelectedPolicyForRenewal(policyToRenew);
+      setShowRenewalPopup(true);
+    } else {
+      // Policy is within or past the renewal window, you might want to navigate
+      // For now, we'll also show the pop-up for consistency with the prompt.
+      // In a real application, you might navigate to a dedicated renewal form:
+      // navigate(`/renew-policy/${policyToRenew.policyId}`);
+      setSelectedPolicyForRenewal(policyToRenew); // Still set for the pop-up
+      setShowRenewalPopup(true);
+    }
+  };
   // Fetch policies from the backend
   useEffect(() => {
     const fetchPolicies = async () => {

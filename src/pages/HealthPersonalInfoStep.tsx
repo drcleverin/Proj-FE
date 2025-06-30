@@ -198,7 +198,7 @@ const userStr = localStorage.getItem("user");
                     </div>
                 </div>
 
-                <div>
+                {/* <div>
                     <Label htmlFor="familyMembers">Number of Family Members</Label>
                     <select
                         id="familyMembers"
@@ -230,7 +230,7 @@ const userStr = localStorage.getItem("user");
                         <option value="1500000">₹15,00,000</option>
                         <option value="2000000">₹20,00,000</option>
                     </select>
-                </div>
+                </div> */}
 
                 <div className="flex space-x-4 pt-4">
                     <Button

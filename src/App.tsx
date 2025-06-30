@@ -25,7 +25,19 @@ import AdminClaims from "./pages/admin/AdminClaims";
 import NotFound from "./pages/NotFound";
 import SignupPage from "./pages/SignupPage";
 import ClaimPage from "./pages/ClaimPage";
- 
+
+import RetrieveQuotePage from "./pages/RetrieveQuotePage";
+import TrackClaimPage from "./pages/TrackClaimPage";
+import LiveChatPage from "./pages/LiveChatPage";
+import RenewPolicyPage from "./pages/RenewPolicyPage";
+import CustomerFeedbackPage from "./pages/CustomerFeedbackPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsAndConditionsPage from "./pages/TermsAndConditionsPage";
+// Removed: import MotorThirdPartyClaimsPage from "./pages/MotorThirdPartyClaimsPage";
+import AboutOverviewPage from "./pages/AboutOverviewPage";
+import AboutPromotersPage from "./pages/Aboutpromoterspage";
+import AboutCSRPage from "./pages/AboutCSRPage";
+import CustomerSupportPage from "./pages/CustomerSupportPage";
 const queryClient = new QueryClient();
  
 const App = () => (
@@ -45,7 +57,23 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               {/* <Route path="/signup" element={<SignupPage />} /> */}
               <Route path="/claimpg" element={<ClaimPage />} />
- 
+
+              <Route path="/retrieve-quote" element={<ProtectedRoute><RetrieveQuotePage /></ProtectedRoute>} />
+              <Route path="/track-claim" element={<ProtectedRoute><TrackClaimPage /></ProtectedRoute>} />
+              <Route path="/live-chat" element={<ProtectedRoute><LiveChatPage /></ProtectedRoute>} />
+              <Route path="/renew-policy" element={<ProtectedRoute><RenewPolicyPage /></ProtectedRoute>} />
+              <Route path="/customer-feedback" element={<ProtectedRoute><CustomerFeedbackPage /></ProtectedRoute>} />
+
+              {/* Legal Section */}
+              <Route path="/legal/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/legal/terms-conditions" element={<TermsAndConditionsPage />} />
+              {/* Removed: <Route path="/legal/motor-third-party-claims" element={<MotorThirdPartyClaimsPage />} /> */}
+
+              {/* About Us Section */}
+              <Route path="/about/overview" element={<AboutOverviewPage />} />
+              <Route path="/about/promoters" element={<AboutPromotersPage />} />
+              <Route path="/about/csr" element={<AboutCSRPage />} />
+
               {/* Protected Routes */}
               <Route path="/dashboard" element={
                 <ProtectedRoute><Dashboard /></ProtectedRoute>

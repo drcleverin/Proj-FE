@@ -135,6 +135,7 @@ console.log(policyStartDate, policyEndDate, "............... (Using Date.UTC)");
             premiumAmount: Number(selectedPlan.price.replace(/[^\d.]/g, "")), // Extract number from price string
             planname: selectedPlan.name, // Replace with actual planId if available in selectedPlan
             userId: userId,
+            planId: selectedPlan.planId,
             // vehicleId: 1, // Replace with actual vehicleId if applicable
         };
 
@@ -196,14 +197,14 @@ console.log(policyStartDate, policyEndDate, "............... (Using Date.UTC)");
                             <span className="text-muted-foreground">Address:</span>
                             <p>{personalDetails.address}, {personalDetails.city}, {personalDetails.pinCode}</p>
                         </div>
-                        <div>
+                        {/* <div>
                             <span className="text-muted-foreground">Family Members:</span>
                             <p>{personalDetails.familyMembers}</p>
                         </div>
                         <div>
                             <span className="text-muted-foreground">Sum Insured:</span>
                             <p>₹{personalDetails.sumInsured}</p>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
 
