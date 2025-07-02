@@ -196,6 +196,7 @@ import CustomerSupportPage from "./pages/CustomerSupportPage"; // Ensure this is
 import Blog from "./pages/Blogs";
 import Blogs from "./pages/Blogs";
 import ComingSoon from "./pages/ComingSoon";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -242,6 +243,9 @@ const App = () => (
               
               <Route path="/policy" element={
                 <ProtectedRoute allowedRoles={['CUSTOMER']}><Policy /></ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute allowedRoles={['CUSTOMER']}><Profile /></ProtectedRoute>
               } />
 
                 <Route path="/comingSoon" element={

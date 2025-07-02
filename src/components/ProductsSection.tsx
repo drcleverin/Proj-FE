@@ -51,9 +51,9 @@ const ProductsSection = () => {
                     </li>
                   ))}
                 </ul>
-                <Button className="w-full bg-insurance-primary hover:bg-insurance-dark">
+                {/* <Button className="w-full bg-insurance-primary hover:bg-insurance-dark">
                   <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+                </Button> */}
               </CardContent>
             </Card>
           ))}
