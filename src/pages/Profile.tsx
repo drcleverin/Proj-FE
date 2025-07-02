@@ -398,7 +398,7 @@ export default function Profile() {
                 disabled={!isEditing}
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
+            {/* <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
               <Label htmlFor="familyMembers" className="md:text-right text-gray-700 font-medium">Family Members</Label>
               <Input
                 id="familyMembers"
@@ -407,8 +407,8 @@ export default function Profile() {
                 className="col-span-3 border-gray-300 rounded-md focus:ring-orange-400 focus:border-orange-400"
                 disabled={!isEditing}
               />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
+            </div> */}
+            {/* <div className="grid grid-cols-1 md:grid-cols-4 items-center gap-2 md:gap-4">
               <Label htmlFor="sumInsured" className="md:text-right text-gray-700 font-medium">Sum Insured</Label>
               <Input
                 id="sumInsured"
@@ -417,7 +417,7 @@ export default function Profile() {
                 className="col-span-3 border-gray-300 rounded-md focus:ring-orange-400 focus:border-orange-400"
                 disabled={!isEditing}
               />
-            </div>
+            </div> */}
           </div>
         </CardContent>
       </Card>
