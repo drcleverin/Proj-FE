@@ -36,26 +36,26 @@ const menuItems = [
     url: "/admin/claims",
     icon: ClipboardList,
   },
-  {
-    title: "Product & Pricing",
-    url: "/admin/products",
-    icon: Package,
-  },
-  {
-    title: "Reports & Analytics",
-    url: "/admin/analytics",
-    icon: BarChart3,
-  },
-  {
-    title: "Settings",
-    url: "/admin/settings",
-    icon: Settings,
-  },
-  {
-    title: "Support",
-    url: "/admin/support",
-    icon: HelpCircle,
-  },
+  // {
+  //   title: "Product & Pricing",
+  //   url: "/admin/products",
+  //   icon: Package,
+  // },
+  // {
+  //   title: "Reports & Analytics",
+  //   url: "/admin/analytics",
+  //   icon: BarChart3,
+  // },
+  // {
+  //   title: "Settings",
+  //   url: "/admin/settings",
+  //   icon: Settings,
+  // },
+  // {
+  //   title: "Support",
+  //   url: "/admin/support",
+  //   icon: HelpCircle,
+  // },
 ];
 
 export function AdminSidebar() {

@@ -58,6 +58,26 @@ export default function AdminUsers() {
   // New API endpoint for claims by policy
   const API_CLAIMS_BY_POLICY_URL = "http://localhost:8093/api/claims/policy";
 
+  // Helper function to map planId to planName
+  const getPlanName = (planId) => {
+    switch (planId) {
+      case 1:
+        return "Individual Health Plan";
+      case 2:
+        return "Family Floater Plan";
+      case 3:
+        return "Senior Citizen Plan";
+      case 4:
+        return "Third Party Liability";
+      case 5:
+        return "Comprehensive Motor Plan";
+      case 6:
+        return "Zero Depreciation Add-on";
+      default:
+        return `Unknown Plan (ID: ${planId})`;
+    }
+  };
+
   // Fetch users from the backend on component mount
   useEffect(() => {
     fetchUsers();
@@ -112,7 +132,8 @@ export default function AdminUsers() {
         const claims = await fetchClaimsForPolicy(policy.policyId); // Fetch claims for each policy
         return {
           number: policy.policyId, // Using policyId as policy number
-          type: `Plan ID: ${policy.planId}`, // Displaying planId as type, adjust as needed
+          // Use the getPlanName helper function to display the plan name
+          type: getPlanName(policy.planId),
           status: policy.policyStatus,
           expiry: policy.policyEndDate,
           claims: claims // Attach claims to the policy
@@ -242,12 +263,12 @@ export default function AdminUsers() {
             <Button onClick={exportToCSV} variant="outline" className="bg-orange-100 border-orange-300">
               Export as CSV
             </Button>
-            <Button variant="outline" size="icon">
+            {/* <Button variant="outline" size="icon">
               <Filter className="h-4 w-4" />
             </Button>
             <Button variant="outline" size="icon">
               <MoreHorizontal className="h-4 w-4" />
-            </Button>
+            </Button> */}
           </div>
         </div>
 
@@ -370,7 +391,7 @@ export default function AdminUsers() {
                 <Input
                   id="new-username"
                   value={newUser.username}
-                  onChange={(e) => setNewUser({...newUser, username: e.target.value})}
+                  onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
                   className="col-span-3"
                 />
               </div>
@@ -380,7 +401,7 @@ export default function AdminUsers() {
                   id="new-email"
                   type="email"
                   value={newUser.email}
-                  onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                   className="col-span-3"
                 />
               </div>
@@ -390,7 +411,7 @@ export default function AdminUsers() {
                   id="new-password"
                   type="password"
                   value={newUser.password}
-                  onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                   className="col-span-3"
                 />
               </div>
@@ -398,7 +419,7 @@ export default function AdminUsers() {
                 <Label htmlFor="new-role" className="text-right">Role</Label>
                 <Select
                   value={newUser.role.roleType}
-                  onValueChange={(value) => setNewUser({...newUser, role: { roleId: value === "CUSTOMER" ? 1 : (value === "ADMIN" ? 2 : 1), roleType: value }})}
+                  onValueChange={(value) => setNewUser({ ...newUser, role: { roleId: value === "CUSTOMER" ? 1 : (value === "ADMIN" ? 2 : 1), roleType: value } })}
                 >
                   <SelectTrigger className="col-span-3">
                     <SelectValue />
@@ -434,7 +455,7 @@ export default function AdminUsers() {
                   <Input
                     id="username"
                     value={editingUser.username}
-                    onChange={(e) => setEditingUser({...editingUser, username: e.target.value})}
+                    onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })}
                     className="col-span-3"
                   />
                 </div>
@@ -443,7 +464,7 @@ export default function AdminUsers() {
                   <Input
                     id="email"
                     value={editingUser.email}
-                    onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
+                    onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
                     className="col-span-3"
                   />
                 </div>
@@ -451,14 +472,14 @@ export default function AdminUsers() {
                   <Label htmlFor="role" className="text-right">Role</Label>
                   <Select
                     value={editingUser.role.roleType}
-                    onValueChange={(value) => setEditingUser({...editingUser, role: { roleId: value === "CUSTOMER" ? 1 : (value === "ADMIN" ? 2 : 1), roleType: value }})}
+                    onValueChange={(value) => setEditingUser({ ...editingUser, role: { roleId: value === "CUSTOMER" ? 1 : (value === "ADMIN" ? 2 : 1), roleType: value } })}
                   >
                     <SelectTrigger className="col-span-3">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="CUSTOMER">Customer</SelectItem>
-                      <SelectItem value="ADMIN">Admin</SelectItem>
+                      <SelectItem value="CUSTOMER" disabled>Customer</SelectItem>
+                      <SelectItem value="ADMIN" disabled>Admin</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -527,7 +548,7 @@ export default function AdminUsers() {
                         viewingUser.policies.map((policy, index) => (
                           <TableRow key={index}>
                             <TableCell>{policy.number}</TableCell>
-                            <TableCell>{policy.type}</TableCell>
+                            <TableCell>{policy.type}</TableCell> {/* This will now show the mapped name */}
                             <TableCell>
                               <Badge variant={policy.status === "ACTIVE" ? "default" : "secondary"}>
                                 {policy.status}

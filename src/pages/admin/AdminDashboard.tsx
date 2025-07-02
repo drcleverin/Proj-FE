@@ -1,8 +1,7 @@
-
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import Header from "@/components/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Legend } from "recharts";
 
 // Mock data for charts
 const userGrowthData = [
@@ -10,7 +9,7 @@ const userGrowthData = [
   { month: "Feb", users: 300 },
   { month: "Mar", users: 600 },
   { month: "Apr", users: 800 },
-  { month: "May", users: 700 },
+  { month: "May", "users": 700 },
   { month: "Jun", users: 900 },
 ];
 
@@ -29,9 +28,21 @@ const policyTypeData = [
   { name: "Product", value: 20, color: "#22c55e" },
 ];
 
+// Custom label component for the Pie Chart
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, name }) => {
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * Math.PI / 180);
+  const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
+
+  return (
+    <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
+  );
+};
+
 export default function AdminDashboard() {
   return (
-    
     <AdminLayout>
       <div className="space-y-4">
         <div>
@@ -88,12 +99,21 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={userGrowthData}>
+                <LineChart
+                  data={userGrowthData}
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
-                  <Line type="monotone" dataKey="users" stroke="#f97316" strokeWidth={2} />
+                  <Legend />
+                  <Line type="monotone" dataKey="users" stroke="#f97316" strokeWidth={2} name="Users" />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -106,20 +126,29 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
+                <PieChart
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
                   <Pie
                     data={policyTypeData}
                     cx="50%"
                     cy="50%"
                     outerRadius={80}
                     dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}%`}
+                    labelLine={false} // Hide the line connecting label to slice
+                    label={renderCustomizedLabel} // Use the custom label component
                   >
                     {policyTypeData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip formatter={(value, name) => [`${value}%`, name]}/>
+                  <Legend />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
@@ -132,14 +161,23 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={policyData}>
+                <BarChart
+                  data={policyData}
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="health" fill="#f97316" />
-                  <Bar dataKey="motor" fill="#3b82f6" />
-                  <Bar dataKey="product" fill="#22c55e" />
+                  <Legend />
+                  <Bar dataKey="health" fill="#f97316" name="Health" />
+                  <Bar dataKey="motor" fill="#3b82f6" name="Motor" />
+                  <Bar dataKey="product" fill="#22c55e" name="Product" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>

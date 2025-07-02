@@ -798,12 +798,12 @@ export default function AdminClaims() {
                         <Button onClick={exportToCSV} variant="outline" className="bg-orange-100 border-orange-300">
                             Export as CSV
                         </Button>
-                        <Button variant="outline" size="icon">
+                        {/* <Button variant="outline" size="icon">
                             <Filter className="h-4 w-4" />
                         </Button>
                         <Button variant="outline" size="icon">
                             <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        </Button> */}
                     </div>
                 </div>
 
@@ -1101,6 +1101,7 @@ export default function AdminClaims() {
                                         value={editingClaim.id}
                                         className="col-span-3"
                                         readOnly // Claim ID should not be editable
+                                        disabled={true}
                                     />
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
@@ -1110,6 +1111,7 @@ export default function AdminClaims() {
                                         value={editingClaim.claimType}
                                         onChange={(e) => setEditingClaim({ ...editingClaim, claimType: e.target.value })}
                                         className="col-span-3"
+                                        disabled={true}
                                     />
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
@@ -1119,6 +1121,7 @@ export default function AdminClaims() {
                                         value={editingClaim.claimAmount}
                                         onChange={(e) => setEditingClaim({ ...editingClaim, claimAmount: e.target.value })}
                                         className="col-span-3"
+                                        
                                     />
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
@@ -1145,6 +1148,7 @@ export default function AdminClaims() {
                                         value={editingClaim.incidentDetails.description}
                                         onChange={(e) => setEditingClaim({ ...editingClaim, incidentDetails: { ...editingClaim.incidentDetails, description: e.target.value } })}
                                         className="col-span-3"
+                                        disabled={true}
                                     />
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
@@ -1154,6 +1158,7 @@ export default function AdminClaims() {
                                         value={editingClaim.incidentDetails.location}
                                         onChange={(e) => setEditingClaim({ ...editingClaim, incidentDetails: { ...editingClaim.incidentDetails, location: e.target.value } })}
                                         className="col-span-3"
+                                        disabled={true}
                                     />
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
@@ -1164,6 +1169,7 @@ export default function AdminClaims() {
                                         value={editingClaim.overview.dateOfIncident}
                                         onChange={(e) => setEditingClaim({ ...editingClaim, overview: { ...editingClaim.overview, dateOfIncident: e.target.value } })}
                                         className="col-span-3"
+                                        disabled={true}
                                     />
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
@@ -1174,6 +1180,7 @@ export default function AdminClaims() {
                                         value={editingClaim.incidentDetails.timeOfIncident}
                                         onChange={(e) => setEditingClaim({ ...editingClaim, incidentDetails: { ...editingClaim.incidentDetails, timeOfIncident: e.target.value } })}
                                         className="col-span-3"
+                                        disabled={true}
                                     />
                                 </div>
                             </div>

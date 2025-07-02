@@ -271,9 +271,9 @@ const Dashboard = () => {
                       <Button asChild variant="outline" size="sm">
                         <Link to={`/policy/${policy.policyId}`}>View</Link>
                       </Button>
-                      <Button size="sm" className="bg-insurance-primary hover:bg-insurance-dark text-white">
+                      {/* <Button size="sm" className="bg-insurance-primary hover:bg-insurance-dark text-white">
                         Renew
-                      </Button>
+                      </Button> */}
                       <Button variant="outline" size="sm" asChild>
                         {/* Link to the new ClaimPage */}
                         <Link to={`/claim/${policy.policyId}`}>Claim</Link>
@@ -293,3 +293,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

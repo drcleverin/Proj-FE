@@ -216,12 +216,12 @@ export default function AdminPolicies() {
             <Button onClick={exportToCSV} variant="outline" className="bg-orange-100 border-orange-300">
               Export as CSV
             </Button>
-            <Button variant="outline" size="icon">
+            {/* <Button variant="outline" size="icon">
               <Filter className="h-4 w-4" />
             </Button>
             <Button variant="outline" size="icon">
               <MoreHorizontal className="h-4 w-4" />
-            </Button>
+            </Button> */}
           </div>
         </div>
 
@@ -286,7 +286,7 @@ export default function AdminPolicies() {
                           {policy.policyStatus}
                         </Badge>
                       </TableCell>
-                      <TableCell>${policy.premiumAmount?.toFixed(2) || '0.00'}</TableCell>
+                      <TableCell>₹{policy.premiumAmount?.toFixed(2) || '0.00'}</TableCell>
                       <TableCell>{policy.planId}</TableCell>
                       <TableCell>{policy.userId}</TableCell>
                       <TableCell>{policy.vehicleId || 'N/A'}</TableCell>
@@ -344,7 +344,7 @@ export default function AdminPolicies() {
           </CardContent>
         </Card>
 
-        {/* Add Policy Dialog */}
+        {/* Add Policy Dialog (No changes needed here) */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
@@ -448,7 +448,7 @@ export default function AdminPolicies() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Policy Dialog */}
+        {/* Edit Policy Dialog - MODIFIED */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
@@ -467,6 +467,7 @@ export default function AdminPolicies() {
                     value={editingPolicy.policyStartDate}
                     onChange={(e) => setEditingPolicy({ ...editingPolicy, policyStartDate: e.target.value })}
                     className="col-span-3"
+                    disabled={true} // Disabled
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -477,6 +478,7 @@ export default function AdminPolicies() {
                     value={editingPolicy.policyEndDate}
                     onChange={(e) => setEditingPolicy({ ...editingPolicy, policyEndDate: e.target.value })}
                     className="col-span-3"
+                    disabled={true} // Disabled
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -503,6 +505,7 @@ export default function AdminPolicies() {
                     value={editingPolicy.premiumAmount}
                     onChange={(e) => setEditingPolicy({ ...editingPolicy, premiumAmount: parseFloat(e.target.value) || 0 })}
                     className="col-span-3"
+                    disabled={editingPolicy.policyStatus !== "ACTIVE"} // Disabled if not ACTIVE
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -510,9 +513,13 @@ export default function AdminPolicies() {
                   <Select
                     value={editingPolicy.planId.toString()}
                     onValueChange={(value) => setEditingPolicy({ ...editingPolicy, planId: parseInt(value) })}
+                    disabled={true} // Keep disabled
                   >
                     <SelectTrigger className="col-span-3">
-                      <SelectValue />
+                      {/* Explicitly display the plan name here */}
+                      <SelectValue>
+                        {plans.find(p => p.planId === editingPolicy.planId)?.planName || `Plan ID: ${editingPolicy.planId}`}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {plans.map(plan => (
@@ -531,6 +538,7 @@ export default function AdminPolicies() {
                     value={editingPolicy.userId}
                     onChange={(e) => setEditingPolicy({ ...editingPolicy, userId: parseInt(e.target.value) || 0 })}
                     className="col-span-3"
+                    disabled={true} // Disabled
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -542,6 +550,7 @@ export default function AdminPolicies() {
                     onChange={(e) => setEditingPolicy({ ...editingPolicy, vehicleId: e.target.value ? parseInt(e.target.value) : null })}
                     className="col-span-3"
                     placeholder="Optional"
+                    disabled={true} // Disabled
                   />
                 </div>
               </div>
@@ -589,7 +598,7 @@ export default function AdminPolicies() {
                     </div>
                     <div>
                       <Label className="text-sm font-medium">Premium Amount</Label>
-                      <p className="text-sm text-gray-600">${viewingPolicy.premiumAmount?.toFixed(2) || '0.00'}</p>
+                      <p className="text-sm text-gray-600">₹{viewingPolicy.premiumAmount?.toFixed(2) || '0.00'}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium">Plan ID</Label>
