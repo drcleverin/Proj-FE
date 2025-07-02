@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react'; // Import useContext and useEffect
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import Header from '@/components/Header';
+import AuthContext from '@/context/AuthContext'; // <--- Import your AuthContext here. Adjust the path!
 
 // ---
 // Define the structure of the ClaimDTO based on your backend response
@@ -19,39 +20,64 @@ interface ClaimData {
     sumInsured: number;
     timeOfIncident: string;
     policyId: number;
+    userId: number; // Ensure userId is included in your backend response and this interface
 }
 // ---
 
 const TrackClaimPage = () => {
     const [claimNumber, setClaimNumber] = useState('');
-    const [claimData, setClaimData] = useState<ClaimData | null>(null); // Changed to claimData
+    const [claimData, setClaimData] = useState<ClaimData | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    // Consume the AuthContext to get the logged-in user's information
+    const { user, isAuthenticated } = useContext(AuthContext);
+
+    // Optional: Clear claim data and error message if the user logs out
+    useEffect(() => {
+        if (!isAuthenticated) {
+            setClaimData(null);
+            setError('');
+        }
+    }, [isAuthenticated]);
 
     const handleTrackClaim = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        setClaimData(null); // Reset claimData
+        setClaimData(null); // Reset claimData before a new search
         setLoading(true);
 
+        // --- Step 1: Check if the user is authenticated and has a userId ---
+        if (!isAuthenticated || !user || user.userId === undefined || user.userId === null) {
+            setError('You must be logged in to track claims. Please log in.');
+            setLoading(false);
+            return;
+        }
+
         try {
-            // Ensure claimNumber is treated as a number if your backend @PathVariable Long id expects it.
-            // If your claim IDs are truly strings like "C123456789", then the backend @PathVariable should be String.
-            // For now, assuming claimNumber will be a numerical ID based on your provided JSON.
+            // Your existing fetch call to the backend for claim details
             const response = await fetch(`http://localhost:8093/api/claims/${claimNumber}`);
 
             if (!response.ok) {
                 if (response.status === 404) {
                     setError('Claim not found. Please verify the claim number and try again.');
                 } else {
-                    // Attempt to parse error message from backend if available
                     const errorText = await response.text();
                     console.error(`Backend error: ${errorText}`);
-                    setError(`An error occurred while tracking your claim. Status: ${response.status}`);
+                    setError(`Not a valid Claim ID`);
                 }
             } else {
                 const data: ClaimData = await response.json();
-                setClaimData(data); // Set the fetched data
+
+                // --- Step 2: Perform the authorization check ---
+                // Compare the userId from the fetched claim with the logged-in user's ID
+                if (data.userId !== user.userId) {
+                    setError('Invalid claim ID. This claim does not belong to your account.');
+                    setClaimData(null); // Crucial: Do not display unauthorized claim data
+                } else {
+                    // If the user IDs match, set the claim data
+                    setClaimData(data);
+                }
             }
         } catch (err) {
             console.error("Error tracking claim:", err);
@@ -67,17 +93,16 @@ const TrackClaimPage = () => {
             case 'APPROVED': return 'text-green-600';
             case 'REJECTED': return 'text-red-600';
             case 'IN_REVIEW': return 'text-blue-600';
-            default: return 'text-gray-800'; // Default for any unhandled status
+            default: return 'text-gray-800';
         }
     };
 
-    // Helper function to determine progress based on status
     const getClaimProgress = (status: string): number => {
         switch (status) {
             case 'PENDING': return 25;
             case 'IN_REVIEW': return 50;
             case 'APPROVED': return 100;
-            case 'REJECTED': return 100; // Declined claims are also "complete" in terms of process
+            case 'REJECTED': return 100;
             default: return 0;
         }
     };
@@ -98,10 +123,10 @@ const TrackClaimPage = () => {
                 <CardContent>
                     <form onSubmit={handleTrackClaim} className="space-y-6">
                         <div>
-                            <Label htmlFor="claimNumber" className="text-sm font-medium text-gray-700">Claim ID</Label> {/* Changed label */}
+                            <Label htmlFor="claimNumber" className="text-sm font-medium text-gray-700">Claim ID</Label>
                             <Input
                                 id="claimNumber"
-                                type="text" // Changed type to number, assuming ID is numeric
+                                type="text"
                                 placeholder="Claim123"
                                 value={claimNumber}
                                 onChange={(e) => setClaimNumber(e.target.value)}
@@ -112,15 +137,22 @@ const TrackClaimPage = () => {
                         <Button
                             type="submit"
                             className="w-full bg-insurance-primary hover:bg-insurance-secondary text-white py-2 rounded-md transition-colors duration-300"
-                            disabled={loading}
+                            // Disable the button if loading or if the user is not authenticated
+                            disabled={loading || !isAuthenticated}
                         >
                             {loading ? 'Tracking...' : 'Track Claim'}
                         </Button>
                     </form>
+                    {/* Display error messages */}
                     {error && <p className="text-red-500 mt-4 text-center text-sm">{error}</p>}
+                    {/* Inform user if not logged in */}
+                    {!isAuthenticated && (
+                        <p className="text-blue-500 mt-4 text-center text-sm">Please log in to track your claims.</p>
+                    )}
                 </CardContent>
 
-                {claimData && ( // Use claimData here
+                {/* Display claim data only if available */}
+                {claimData && (
                     <CardFooter className="flex flex-col items-start pt-4 border-t border-gray-200 bg-gray-50 rounded-b-xl px-6 py-4">
                         <h5 className="text-lg font-semibold text-insurance-primary mb-3">Claim Details:</h5>
                         <div className="space-y-2 text-gray-800 w-full">
@@ -131,7 +163,7 @@ const TrackClaimPage = () => {
                             <p className="text-sm"><strong>Time of Incident:</strong> {claimData.timeOfIncident}</p>
                             <p className="text-sm"><strong>Location:</strong> {claimData.location}</p>
                             <p className="text-sm"><strong>Sum Insured:</strong> ₹{claimData.sumInsured.toLocaleString()}</p>
-                            <p className="text-sm"><strong>Description:</strong> {claimData.description || 'N/A'}</p> {/* Handle empty description */}
+                            <p className="text-sm"><strong>Description:</strong> {claimData.description || 'N/A'}</p>
                             <p className="text-sm">
                                 <strong>Current Status:</strong> <span className={`font-semibold ${getStatusColor(claimData.claimStatus)}`}>{claimData.claimStatus}</span>
                             </p>
@@ -144,9 +176,6 @@ const TrackClaimPage = () => {
                                 <Progress value={getClaimProgress(claimData.claimStatus)} className="mt-2 h-2 bg-gray-200 [&::-webkit-progress-bar]:rounded-lg [&::-webkit-progress-value]:rounded-lg [&::-webkit-progress-value]:bg-insurance-primary" />
                             </div>
                         </div>
-                        {/* <Button className="mt-6 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm">
-                            Contact Claim Department
-                        </Button> */}
                     </CardFooter>
                 )}
             </Card>
@@ -154,4 +183,4 @@ const TrackClaimPage = () => {
     );
 };
 
-export default TrackClaimPage;
+export default TrackClaimPage;  

@@ -29,6 +29,7 @@ interface FetchedPolicyData {
   basePremium: number; // From InsurancePlan
   coverage: number; // Sum Insured from InsurancePlan
   descriptionAboutPolicy: string;
+  registrationNumber?: string;
 }
 
 // Frontend-specific fields to enrich display
@@ -204,7 +205,7 @@ const handleRenewPolicyClick = () => {
           expiryDate: formatDate(data.policyEndDate),
           // Add specific fields if they were retrieved for certain types, or mock if not
           ...(data.planType.toLowerCase() === "health" && { members: getMockHealthMembers() }),
-          ...(data.planType.toLowerCase() === "motor" && { vehicle: "Vehicle Details Available", registrationNo: data.policyNumber }),
+          ...(data.planType.toLowerCase() === "motor" && { vehicle: "Vehicle Details Available", registrationNo: data.registrationNumber }),
           ...(data.planType.toLowerCase() === "product" && { product: "Product Details Available", modelNo: "N/A" }),
         };
         setPolicy(mappedPolicy);
@@ -255,8 +256,8 @@ const handleRenewPolicyClick = () => {
   };
 
   const isMotorPolicy = (p: PolicyDisplay): p is PolicyDisplay & { vehicle: string, registrationNo: string } => {
-    return p.planType.toLowerCase() === "motor" && 'vehicle' in p;
-  };
+  return p.planType.toLowerCase() === "motor" && 'vehicle' in p && 'registrationNo' in p && typeof p.registrationNo === 'string';
+};
 
   const isProductPolicy = (p: PolicyDisplay): p is PolicyDisplay & { product: string, modelNo: string } => {
     return p.planType.toLowerCase() === "product" && 'product' in p;
