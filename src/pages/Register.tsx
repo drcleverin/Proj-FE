@@ -111,7 +111,7 @@ const Register = () => {
                     <option value="CUSTOMER">Customer</option>
                     {/* <option value="csr">CSR</option>
                     <option value="underwriter">Underwriter</option> */}
-                    <option value="ADMIN">Admin</option>
+                    {/* <option value="ADMIN">Admin</option> */}
                   </select>
                 </div>
 

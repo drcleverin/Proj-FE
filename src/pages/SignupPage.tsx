@@ -124,7 +124,7 @@ const SignupPage: React.FC = () => {
                         style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
                     >
                         <option value="CUSTOMER">CUSTOMER</option>
-                        <option value="ADMIN">ADMIN</option> {/* If you have an ADMIN role */}
+                        {/*<option value="ADMIN">ADMIN</option>  If you have an ADMIN role */}
                     </select>
                 </div>
                 <div>
