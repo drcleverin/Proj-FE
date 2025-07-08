@@ -419,7 +419,7 @@ export default function AdminUsers() {
                 <Label htmlFor="new-role" className="text-right">Role</Label>
                 <Select
                   value={newUser.role.roleType}
-                  onValueChange={(value) => setNewUser({ ...newUser, role: { roleId: value === "CUSTOMER" ? 1 : (value === "ADMIN" ? 2 : 1), roleType: value } })}
+                  onValueChange={(value) => setNewUser({ ...newUser, role: { roleId: value === "CUSTOMER" ? 2 : 1, roleType: value } })}
                 >
                   <SelectTrigger className="col-span-3">
                     <SelectValue />
